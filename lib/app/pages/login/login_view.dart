@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/input_field.dart';
 import '../../widgets/animations/breathe_transitions.dart';
+import 'login_controller.dart';
+import '../../../domain/usecases/authenticate_user_usecase.dart';
+import '../../../data/repositories/mock/mock_user_repository.dart';
 
-/// Vista de login/registro con diseño glassmorphism
-/// Permite al usuario autenticarse con Google o email/password
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+/// Vista de login/registro con diseño glassmorphism siguiendo Clean Architecture
+/// Solo maneja UI, delega lógica al Controller
+class LoginPage extends CleanView {
+  const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<StatefulWidget> createState() => _LoginViewState();
 }
 
-class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _LoginViewState extends CleanViewState<LoginPage, LoginController> 
+    with SingleTickerProviderStateMixin {
+  
+  TabController? _tabController;
   
   // Controladores para los campos de texto
   final _emailController = TextEditingController();
@@ -26,18 +32,21 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   // Keys para formularios separados
   final _loginFormKey = GlobalKey<FormState>();
   final _signUpFormKey = GlobalKey<FormState>();
-  
-  bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+  // Constructor que inicializa el controller
+  _LoginViewState() : super(LoginController(
+    AuthenticateUserUseCase(MockUserRepository())
+  ));
+
+  /// Getter que inicializa el TabController lazy
+  TabController get tabController {
+    _tabController ??= TabController(length: 2, vsync: this);
+    return _tabController!;
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
@@ -46,49 +55,24 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   /// Maneja el login con Google
-  Future<void> _signInWithGoogle() async {
-    setState(() => _isLoading = true);
-    
-    try {
-      // Aquí iría la lógica de login con Google
-      await Future.delayed(const Duration(seconds: 2)); // Simular delay
-      
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      }
-    } catch (e) {
-      _showErrorSnackBar('Error al iniciar sesión con Google: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+  void _signInWithGoogle(LoginController loginController) {
+    loginController.authenticateWithGoogle();
+    _checkAuthenticationResult(loginController);
   }
 
   /// Maneja el login con email y contraseña
-  Future<void> _signInWithEmail() async {
+  void _signInWithEmail(LoginController loginController) {
     if (!_loginFormKey.currentState!.validate()) return;
     
-    setState(() => _isLoading = true);
-    
-    try {
-      // Aquí iría la lógica de login con email
-      await Future.delayed(const Duration(seconds: 1)); // Simular delay
-      
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      }
-    } catch (e) {
-      _showErrorSnackBar('Error al iniciar sesión: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+    loginController.authenticateWithEmail(
+      _emailController.text,
+      _passwordController.text,
+    );
+    _checkAuthenticationResult(loginController);
   }
 
   /// Maneja el registro con email y contraseña
-  Future<void> _signUpWithEmail() async {
+  void _signUpWithEmail(LoginController loginController) {
     if (!_signUpFormKey.currentState!.validate()) return;
     
     if (_passwordController.text != _confirmPasswordController.text) {
@@ -96,21 +80,24 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       return;
     }
     
-    setState(() => _isLoading = true);
+    loginController.registerUser(
+      _nameController.text,
+      _emailController.text,
+      _passwordController.text,
+    );
+    _checkAuthenticationResult(loginController);
+  }
+
+  /// Verifica el resultado de la autenticación
+  void _checkAuthenticationResult(LoginController loginController) {
+    // Si hay usuario autenticado, navegar
+    if (loginController.authenticatedUser != null) {
+      Navigator.of(context).pushReplacementNamed('/home');
+    }
     
-    try {
-      // Aquí iría la lógica de registro
-      await Future.delayed(const Duration(seconds: 1)); // Simular delay
-      
-      if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      }
-    } catch (e) {
-      _showErrorSnackBar('Error al registrarse: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    // Si hay error, mostrar mensaje
+    if (loginController.errorMessage != null) {
+      _showErrorSnackBar(loginController.errorMessage!);
     }
   }
 
@@ -149,73 +136,38 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget get view {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
     return Scaffold(
-      // Clave para evitar overflow del teclado
+      key: globalKey,
       resizeToAvoidBottomInset: true,
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
             colors: [
-              colorScheme.primary.withOpacity(0.8),
-              colorScheme.secondary.withOpacity(0.6),
-              colorScheme.tertiary.withOpacity(0.4),
+              colorScheme.primaryContainer,
+              colorScheme.secondaryContainer,
             ],
           ),
         ),
         child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Responsive layout
-              final isTablet = constraints.maxWidth > 600;
-              final contentWidth = isTablet ? 500.0 : double.infinity;
-              
-              return Center(
-                child: SingleChildScrollView(
-                  // FIX: Physics mejoradas y padding dinámico
-                  physics: const BouncingScrollPhysics(),
-                  // Padding dinámico para adaptarse al teclado y dispositivo
-                  padding: EdgeInsets.only(
-                    left: isTablet ? 0 : 20,
-                    right: isTablet ? 0 : 20,
-                    top: 20,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 40, // Más espacio inferior
-                  ),
-                  child: ConstrainedBox(
-                    // FIX: Usar ConstrainedBox para mejor control de altura
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight - 80, // Asegurar altura mínima
-                    ),
-                    child: Container(
-                      width: contentWidth,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min, // FIX: Evitar conflictos de layout
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Header con logo y título
-                          _buildHeader(),
-                          
-                          const SizedBox(height: 40),
-                          
-                          // Formulario principal
-                          _buildAuthCard(),
-                          
-                          // FIX: Espacio extra en lugar de Spacer
-                          const SizedBox(height: 40),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 40),
+                _buildHeader(),
+                const SizedBox(height: 40),
+                _buildAuthCard(),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -231,13 +183,22 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         FadeSlideIn(
           delay: const Duration(milliseconds: 200),
           child: InteractiveScale(
-            onTap: () {
-              HapticFeedback.lightImpact();
-            },
-            child: GlassCard(
+            child: Container(
               width: 100,
               height: 100,
-              borderRadius: BorderRadius.circular(25),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: 0.2),
+                    Colors.white.withValues(alpha: 0.1),
+                  ],
+                ),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  width: 2,
+                ),
+              ),
               child: Icon(
                 Icons.air,
                 size: 50,
@@ -253,11 +214,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         FadeSlideIn(
           delay: const Duration(milliseconds: 400),
           child: Text(
-            'Breathe',
-            style: theme.textTheme.headlineLarge?.copyWith(
+            'Bienvenido a Breathe',
+            style: theme.textTheme.headlineMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 36,
             ),
           ),
         ),
@@ -268,12 +228,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         FadeSlideIn(
           delay: const Duration(milliseconds: 600),
           child: Text(
-            'Tu compañero de bienestar',
+            'Encuentra tu paz interior',
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 16,
+              color: Colors.white.withValues(alpha: 0.8),
             ),
-            textAlign: TextAlign.center,
           ),
         ),
       ],
@@ -285,18 +243,13 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       delay: const Duration(milliseconds: 800),
       child: GlassFormCard(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // Tabs para Login/Registro con microinteracción
             _buildTabBar(),
-            
             const SizedBox(height: 24),
-            
-            // FIX: TabBarView con altura fija para evitar overflow
             SizedBox(
-              height: 450, // Altura fija suficiente para todo el contenido
+              height: 400, // FIX: Altura fija para evitar problemas de layout
               child: TabBarView(
-                controller: _tabController,
+                controller: tabController,
                 children: [
                   _buildLoginTab(),
                   _buildSignUpTab(),
@@ -315,35 +268,31 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: TabBar(
-        controller: _tabController,
+        controller: tabController,
         labelColor: Colors.white,
-        unselectedLabelColor: colorScheme.onSurface.withOpacity(0.7),
+        unselectedLabelColor: colorScheme.onSurface.withValues(alpha:0.7),
         indicator: BoxDecoration(
-          color: colorScheme.primary.withOpacity(0.8),
+          color: colorScheme.primary.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(16),
         ),
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
         onTap: (index) {
-          // Feedback háptico suave al cambiar de pestaña
+          // Feedback háptico al cambiar de tab
           HapticFeedback.selectionClick();
         },
         tabs: const [
           Tab(
-            child: Text(
-              'Iniciar Sesión',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
+            icon: Icon(Icons.login),
+            text: 'Iniciar Sesión',
           ),
           Tab(
-            child: Text(
-              'Registrarse',
-              style: TextStyle(fontWeight: FontWeight.w600),
-            ),
+            icon: Icon(Icons.person_add),
+            text: 'Registrarse',
           ),
         ],
       ),
@@ -351,232 +300,212 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   }
 
   Widget _buildLoginTab() {
-    return SingleChildScrollView(
-      // FIX: Padding más generoso para evitar que el contenido se corte
-      padding: const EdgeInsets.only(
-        top: 20,
-        bottom: 40, // Más espacio inferior
-        left: 0,
-        right: 0,
-      ),
-      physics: const BouncingScrollPhysics(), // Mejor experiencia de scroll
-      child: Form(
-        key: _loginFormKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // FIX: Tamaño mínimo para evitar overflow
-          children: [
-          
-          // Email field con animación staggered
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 200),
-            child: EmailField(
-              labelText: 'Correo electrónico',
-              controller: _emailController,
-              onSubmitted: (_) => _signInWithEmail(),
+    return ControlledWidgetBuilder<LoginController>(
+      builder: (context, loginController) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.only(
+            top: 20,
+            bottom: 40,
+            left: 0,
+            right: 0,
+          ),
+          physics: const BouncingScrollPhysics(),
+          child: Form(
+            key: _loginFormKey,
+            child: Column(
+              children: [
+                InputField(
+                  controller: _emailController,
+                  labelText: 'Email',
+                  hintText: 'tu@email.com',
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: Icon(Icons.email_outlined),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return 'Ingresa tu email';
+                    if (!value!.contains('@')) return 'Email inválido';
+                    return null;
+                  },
+                ),
+                
+                const SizedBox(height: 16),
+                
+                InputField(
+                  controller: _passwordController,
+                  labelText: 'Contraseña',
+                  hintText: 'Tu contraseña',
+                  obscureText: true,
+                  prefixIcon: Icon(Icons.lock_outline),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return 'Ingresa tu contraseña';
+                    return null;
+                  },
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Botón de login principal
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    text: 'Iniciar Sesión',
+                    onPressed: loginController.isLoading ? null : () => _signInWithEmail(loginController),
+                    isLoading: loginController.isLoading,
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Divisor
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.3))),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'O continúa con',
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.3))),
+                  ],
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Botón de Google
+                SizedBox(
+                  width: double.infinity,
+                  child: SecondaryButton(
+                    text: 'Continuar con Google',
+                    onPressed: () => _signInWithGoogle(loginController),
+                  ),
+                ),
+              ],
             ),
           ),
-          
-          const SizedBox(height: 20),
-          
-          // Password field con animación staggered
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 400),
-            child: PasswordField(
-              labelText: 'Contraseña',
-              controller: _passwordController,
-              onSubmitted: (_) => _signInWithEmail(),
-            ),
-          ),
-          
-          const SizedBox(height: 32),
-          
-          // Login button con animación
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 600),
-            child: InteractiveScale(
-              child: PrimaryButton(
-                text: 'Iniciar Sesión',
-                onPressed: _isLoading ? null : _signInWithEmail,
-                isLoading: _isLoading,
-                width: double.infinity,
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Separador con animación
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 800),
-            child: Text(
-              'o',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Google button con animación final
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 1000),
-            child: InteractiveScale(
-              child: SecondaryButton(
-                text: 'Continuar con Google',
-                icon: const Icon(Icons.login),
-                onPressed: _isLoading ? null : _signInWithGoogle,
-                width: double.infinity,
-              ),
-            ),
-          ),
-          
-          // FIX: Espacio adicional al final para asegurar visibilidad completa
-          const SizedBox(height: 24),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
   Widget _buildSignUpTab() {
-    return SingleChildScrollView(
-      // FIX: Padding más generoso para evitar que el contenido se corte
-      padding: const EdgeInsets.only(
-        top: 20,
-        bottom: 40, // Más espacio inferior
-        left: 0,
-        right: 0,
-      ),
-      physics: const BouncingScrollPhysics(), // Mejor experiencia de scroll
-      child: Form(
-        key: _signUpFormKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // FIX: Tamaño mínimo para evitar overflow
-          children: [
-          
-          // Name field con animación staggered
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 200),
-            child: InputField(
-              labelText: 'Nombre completo',
-              hintText: 'Ingresa tu nombre',
-              controller: _nameController,
-              prefixIcon: const Icon(Icons.person_outline),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingresa tu nombre';
-                }
-                if (value.length < 2) {
-                  return 'El nombre debe tener al menos 2 caracteres';
-                }
-                return null;
-              },
+    return ControlledWidgetBuilder<LoginController>(
+      builder: (context, loginController) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.only(
+            top: 20,
+            bottom: 40,
+            left: 0,
+            right: 0,
+          ),
+          physics: const BouncingScrollPhysics(),
+          child: Form(
+            key: _signUpFormKey,
+            child: Column(
+              children: [
+                InputField(
+                  controller: _nameController,
+                  labelText: 'Nombre',
+                  hintText: 'Tu nombre completo',
+                  keyboardType: TextInputType.name,
+                  prefixIcon: Icon(Icons.person_outline),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return 'Ingresa tu nombre';
+                    return null;
+                  },
+                ),
+                
+                const SizedBox(height: 16),
+                
+                InputField(
+                  controller: _emailController,
+                  labelText: 'Email',
+                  hintText: 'tu@email.com',
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: Icon(Icons.email_outlined),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return 'Ingresa tu email';
+                    if (!value!.contains('@')) return 'Email inválido';
+                    return null;
+                  },
+                ),
+                
+                const SizedBox(height: 16),
+                
+                InputField(
+                  controller: _passwordController,
+                  labelText: 'Contraseña',
+                  hintText: 'Mínimo 6 caracteres',
+                  obscureText: true,
+                  prefixIcon: Icon(Icons.lock_outline),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return 'Ingresa una contraseña';
+                    if (value!.length < 6) return 'Mínimo 6 caracteres';
+                    return null;
+                  },
+                ),
+                
+                const SizedBox(height: 16),
+                
+                InputField(
+                  controller: _confirmPasswordController,
+                  labelText: 'Confirmar Contraseña',
+                  hintText: 'Repite tu contraseña',
+                  obscureText: true,
+                  prefixIcon: Icon(Icons.lock_outline),
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) return 'Confirma tu contraseña';
+                    if (value != _passwordController.text) {
+                      return 'Las contraseñas no coinciden';
+                    }
+                    return null;
+                  },
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Botón de registro principal
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    text: 'Registrarse',
+                    onPressed: loginController.isLoading ? null : () => _signUpWithEmail(loginController),
+                    isLoading: loginController.isLoading,
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Divisor
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.3))),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'O continúa con',
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+                      ),
+                    ),
+                    Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.3))),
+                  ],
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Botón de Google
+                SizedBox(
+                  width: double.infinity,
+                  child: SecondaryButton(
+                    text: 'Continuar con Google',
+                    onPressed: () => _signInWithGoogle(loginController),
+                  ),
+                ),
+              ],
             ),
           ),
-          
-          const SizedBox(height: 16),
-          
-          // Email field con animación
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 400),
-            child: EmailField(
-              labelText: 'Correo electrónico',
-              controller: _emailController,
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // Password field con animación
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 600),
-            child: PasswordField(
-              labelText: 'Contraseña',
-              controller: _passwordController,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingresa una contraseña';
-                }
-                if (value.length < 6) {
-                  return 'La contraseña debe tener al menos 6 caracteres';
-                }
-                return null;
-              },
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // Confirm password field con animación
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 800),
-            child: PasswordField(
-              labelText: 'Confirmar contraseña',
-              hintText: 'Confirma tu contraseña',
-              controller: _confirmPasswordController,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor confirma tu contraseña';
-                }
-                if (value != _passwordController.text) {
-                  return 'Las contraseñas no coinciden';
-                }
-                return null;
-              },
-            ),
-          ),
-          
-          const SizedBox(height: 32),
-          
-          // Sign up button con animación
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 1000),
-            child: InteractiveScale(
-              child: PrimaryButton(
-                text: 'Crear Cuenta',
-                onPressed: _isLoading ? null : _signUpWithEmail,
-                isLoading: _isLoading,
-                width: double.infinity,
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Separador con animación
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 1200),
-            child: Text(
-              'o',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Google button con animación final
-          FadeSlideIn(
-            delay: const Duration(milliseconds: 1400),
-            child: InteractiveScale(
-              child: SecondaryButton(
-                text: 'Registrarse con Google',
-                icon: const Icon(Icons.login),
-                onPressed: _isLoading ? null : _signInWithGoogle,
-                width: double.infinity,
-              ),
-            ),
-          ),
-          
-          // FIX: Espacio adicional al final para asegurar visibilidad completa
-          const SizedBox(height: 24),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 }
