@@ -7,15 +7,15 @@ import 'package:logging/logging.dart';
 class BreathingExercisePresenter extends Presenter {
   final Logger _logger = Logger('BreathingExercisePresenter');
   
-  // Referencias para la vista
-  late Function onNavigateToHome;
-  late Function(String) onShowError;
-  late Function(String) onShowSuccess;
-  late Function(String) onShowInfo;
-  late Function onShowSettings;
-  late Function(String, int) onStartPhase;
-  late Function onExerciseComplete;
-  late Function onHapticFeedback;
+  // Referencias para la vista - usando nullable para evitar late initialization error
+  Function? onNavigateToHome;
+  Function(String)? onShowError;
+  Function(String)? onShowSuccess;
+  Function(String)? onShowInfo;
+  Function? onShowSettings;
+  Function(String, int)? onStartPhase;
+  Function? onExerciseComplete;
+  Function? onHapticFeedback;
   
   @override
   void dispose() {
@@ -79,10 +79,10 @@ class BreathingExercisePresenter extends Presenter {
     HapticFeedback.heavyImpact();
     
     // Mostrar mensaje de felicitación
-    onShowSuccess('¡Excelente trabajo! Has completado $totalCycles ciclos de respiración 4-7-8.');
+    onShowSuccess?.call('¡Excelente trabajo! Has completado $totalCycles ciclos de respiración 4-7-8.');
     
     // Trigger de finalización en la vista
-    onExerciseComplete();
+    onExerciseComplete?.call();
   }
   
   /// Se llama cuando cambia la fase de respiración
@@ -103,7 +103,7 @@ class BreathingExercisePresenter extends Presenter {
     }
     
     // Notificar a la vista para iniciar las animaciones
-    onStartPhase(phase, duration);
+    onStartPhase?.call(phase, duration);
   }
   
   /// Se llama cuando cambia la forma de respiración
@@ -115,7 +115,7 @@ class BreathingExercisePresenter extends Presenter {
     
     // Mostrar mensaje informativo
     String shapeName = _getShapeName(shape);
-    onShowInfo('Forma cambiada a: $shapeName');
+    onShowInfo?.call('Forma cambiada a: $shapeName');
   }
   
   /// Se llama cuando se solicita mostrar información
@@ -145,25 +145,25 @@ Consejos:
 • Practica regularmente para mejores resultados
 ''';
     
-    onShowInfo(infoText);
+    onShowInfo?.call(infoText);
   }
   
   /// Se llama cuando se solicita mostrar configuración
   void showExerciseSettings() {
     _logger.info('Mostrando configuración del ejercicio');
-    onShowSettings();
+    onShowSettings?.call();
   }
   
   /// Navega de vuelta a la pantalla principal
   void navigateToHome() {
     _logger.info('Navegando de vuelta a Home');
-    onNavigateToHome();
+    onNavigateToHome?.call();
   }
   
   /// Maneja errores durante el ejercicio
   void handleError(String error) {
     _logger.severe('Error en ejercicio de respiración: $error');
-    onShowError(error);
+    onShowError?.call(error);
   }
   
   /// Convierte el código de forma a nombre legible
@@ -183,12 +183,12 @@ Consejos:
   /// Valida los parámetros del ejercicio
   bool validateExerciseParams(int inhaleTime, int holdTime, int exhaleTime, int cycles) {
     if (inhaleTime <= 0 || holdTime < 0 || exhaleTime <= 0 || cycles <= 0) {
-      onShowError('Los parámetros del ejercicio deben ser valores positivos');
+      onShowError?.call('Los parámetros del ejercicio deben ser valores positivos');
       return false;
     }
     
     if (cycles > 20) {
-      onShowError('El número máximo de ciclos es 20');
+      onShowError?.call('El número máximo de ciclos es 20');
       return false;
     }
     

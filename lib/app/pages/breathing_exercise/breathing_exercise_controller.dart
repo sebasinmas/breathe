@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
+import 'breathing_exercise_presenter.dart';
 
 /// Controller para la vista de ejercicios de respiración
 /// 
@@ -8,10 +10,10 @@ import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 /// - Ejecutar casos de uso del dominio
 /// - Comunicarse con el presenter
 class BreathingExerciseController extends Controller {
-  final dynamic breathingExercisePresenter;
+  final BreathingExercisePresenter _presenter;
   
   // Constructor
-  BreathingExerciseController(this.breathingExercisePresenter) : super();
+  BreathingExerciseController() : _presenter = BreathingExercisePresenter(), super();
 
   @override
   void initListeners() {
@@ -28,6 +30,10 @@ class BreathingExerciseController extends Controller {
   String _exerciseType = '4-7-8';
   double _phaseProgress = 0.0;
   int _phaseTimeRemaining = 0;
+  
+  // Timer para gestionar las fases
+  Timer? _phaseTimer;
+  Timer? _countdownTimer;
 
   // Configuración del ejercicio (4-7-8)
   final int _inhaleTime = 4;
@@ -83,6 +89,7 @@ class BreathingExerciseController extends Controller {
   void pauseExercise() {
     _isPaused = true;
     _isPlaying = false;
+    _cancelTimers();
     
     // Notificar al presenter
     getPresenter().onExercisePaused();
@@ -109,6 +116,7 @@ class BreathingExerciseController extends Controller {
     _currentPhase = 'rest';
     _phaseProgress = 0.0;
     _phaseTimeRemaining = 0;
+    _cancelTimers();
     
     // Notificar al presenter
     getPresenter().onExerciseStopped();
@@ -171,6 +179,7 @@ class BreathingExerciseController extends Controller {
 
   /// Inicia la fase de inhalación
   void _inhalePhase() {
+    _cancelTimers();
     _currentPhase = 'inhale';
     _phaseTimeRemaining = _inhaleTime;
     _phaseProgress = 0.0;
@@ -178,11 +187,22 @@ class BreathingExerciseController extends Controller {
     // Notificar al presenter
     getPresenter().onPhaseChanged('inhale', _inhaleTime);
     
+    // Iniciar timer de fase
+    _phaseTimer = Timer(Duration(seconds: _inhaleTime), () {
+      if (_isPlaying && !_isPaused) {
+        _holdPhase();
+      }
+    });
+    
+    // Timer de countdown para actualizar UI
+    _startCountdownTimer();
+    
     refreshUI();
   }
 
   /// Inicia la fase de retención
   void _holdPhase() {
+    _cancelTimers();
     _currentPhase = 'hold';
     _phaseTimeRemaining = _holdTime;
     _phaseProgress = 0.0;
@@ -190,17 +210,38 @@ class BreathingExerciseController extends Controller {
     // Notificar al presenter
     getPresenter().onPhaseChanged('hold', _holdTime);
     
+    // Iniciar timer de fase
+    _phaseTimer = Timer(Duration(seconds: _holdTime), () {
+      if (_isPlaying && !_isPaused) {
+        _exhalePhase();
+      }
+    });
+    
+    // Timer de countdown para actualizar UI
+    _startCountdownTimer();
+    
     refreshUI();
   }
 
   /// Inicia la fase de exhalación
   void _exhalePhase() {
+    _cancelTimers();
     _currentPhase = 'exhale';
     _phaseTimeRemaining = _exhaleTime;
     _phaseProgress = 0.0;
     
     // Notificar al presenter
     getPresenter().onPhaseChanged('exhale', _exhaleTime);
+    
+    // Iniciar timer de fase
+    _phaseTimer = Timer(Duration(seconds: _exhaleTime), () {
+      if (_isPlaying && !_isPaused) {
+        _completeCurrentCycle();
+      }
+    });
+    
+    // Timer de countdown para actualizar UI
+    _startCountdownTimer();
     
     refreshUI();
   }
@@ -251,38 +292,36 @@ class BreathingExerciseController extends Controller {
     refreshUI();
   }
 
-  /// Muestra información del ejercicio
-  void showInfo() {
-    getPresenter().showExerciseInfo();
-  }
-
-  /// Muestra configuración del ejercicio
-  void showSettings() {
-    getPresenter().showExerciseSettings();
-  }
-
   /// Retorna el presenter tipado
   BreathingExercisePresenter getPresenter() {
-    return breathingExercisePresenter;
+    return _presenter;
+  }
+
+  /// Cancela todos los timers activos
+  void _cancelTimers() {
+    _phaseTimer?.cancel();
+    _countdownTimer?.cancel();
+  }
+
+  /// Inicia el timer de countdown para actualizar la UI
+  void _startCountdownTimer() {
+    int initialTime = _phaseTimeRemaining;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_phaseTimeRemaining > 0) {
+        _phaseTimeRemaining--;
+        _phaseProgress = 1.0 - (_phaseTimeRemaining / initialTime);
+        refreshUI();
+      } else {
+        timer.cancel();
+      }
+    });
   }
 
   @override
   void onDisposed() {
     // Limpiar recursos si es necesario
-    breathingExercisePresenter.dispose();
+    _cancelTimers();
+    _presenter.dispose();
     super.onDisposed();
   }
-}
-
-/// Interface que debe implementar el presenter
-abstract class BreathingExercisePresenter extends Presenter {
-  void onExerciseStarted();
-  void onExercisePaused();
-  void onExerciseResumed();
-  void onExerciseStopped();
-  void onExerciseCompleted(int totalCycles);
-  void onPhaseChanged(String phase, int duration);
-  void onShapeChanged(String shape);
-  void showExerciseInfo();
-  void showExerciseSettings();
 }

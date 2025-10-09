@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 /// Vista de splash screen
 /// Muestra el logo de la app y verifica el estado de autenticación
@@ -23,7 +24,7 @@ class _SplashPageState extends State<SplashPage> {
     // Aquí iría la lógica de verificación de autenticación
     // Por ahora simularemos navegación a login
     if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/login');
+      context.go('/login');
     }
   }
 

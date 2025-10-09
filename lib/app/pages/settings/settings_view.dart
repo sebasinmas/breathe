@@ -1,624 +1,436 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
-import '../../widgets/glass_card.dart';
-import '../../widgets/primary_button.dart';
+import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
+import 'package:go_router/go_router.dart';
+import 'settings_controller.dart';
 
-/// Vista de configuración de la aplicación con diseño glassmorphism
-/// Permite cambiar tema, idioma, perfil y otras preferencias
-class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+/// Vista de configuración siguiendo Clean Architecture
+/// Versión simplificada y funcional
+class SettingsPage extends CleanView {
+  const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
-  // Estados de configuración
-  String _selectedTheme = 'Sistema';
-  String _selectedLanguage = 'Español';
-  bool _notificationsEnabled = true;
-  bool _soundEnabled = true;
-  double _soundVolume = 0.7;
+class _SettingsPageState extends CleanViewState<SettingsPage, SettingsController> {
+  _SettingsPageState() : super(SettingsController());
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
+  Widget get view {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      key: globalKey,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'Configuración',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+        title: const Text('Configuración'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              colorScheme.primary.withOpacity(0.8),
-              colorScheme.secondary.withOpacity(0.6),
-              colorScheme.tertiary.withOpacity(0.4),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              // Sección de perfil
-              _buildProfileSection(),
-              
-              const SizedBox(height: 24),
-              
-              // Sección de apariencia
-              _buildAppearanceSection(),
-              
-              const SizedBox(height: 24),
-              
-              // Sección de notificaciones
-              _buildNotificationsSection(),
-              
-              const SizedBox(height: 24),
-              
-              // Sección de audio
-              _buildAudioSection(),
-              
-              const SizedBox(height: 24),
-              
-              // Sección de cuenta
-              _buildAccountSection(),
-              
-              const SizedBox(height: 24),
-              
-              // Sección de información
-              _buildInfoSection(),
-              
-              const SizedBox(height: 40),
-            ],
-          ),
-        ),
+      body: ControlledWidgetBuilder<SettingsController>(
+        builder: (context, controller) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Sección de Perfil
+                _buildSection(
+                  title: 'Perfil',
+                  icon: Icons.person,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      child: controller.userAvatar != null 
+                          ? null
+                          : const Icon(Icons.person),
+                      backgroundImage: controller.userAvatar != null 
+                          ? NetworkImage(controller.userAvatar!)
+                          : null,
+                    ),
+                    title: Text(controller.userName),
+                    subtitle: Text(controller.userEmail),
+                    trailing: const Icon(Icons.edit),
+                    onTap: () => _showEditProfileDialog(controller),
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Sección de Apariencia
+                _buildSection(
+                  title: 'Apariencia',
+                  icon: Icons.palette,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.brightness_6),
+                        title: const Text('Tema'),
+                        subtitle: Text(controller.selectedTheme),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _showThemeDialog(controller),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.language),
+                        title: const Text('Idioma'),
+                        subtitle: Text(controller.selectedLanguage),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _showLanguageDialog(controller),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Sección de Notificaciones
+                _buildSection(
+                  title: 'Notificaciones',
+                  icon: Icons.notifications,
+                  child: SwitchListTile(
+                    secondary: const Icon(Icons.notifications_active),
+                    title: const Text('Notificaciones'),
+                    subtitle: const Text('Recibir recordatorios y actualizaciones'),
+                    value: controller.notificationsEnabled,
+                    onChanged: (value) => controller.onNotificationsToggled(value),
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Sección de Audio
+                _buildSection(
+                  title: 'Audio',
+                  icon: Icons.volume_up,
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        secondary: const Icon(Icons.music_note),
+                        title: const Text('Sonidos'),
+                        subtitle: const Text('Música y efectos de sonido'),
+                        value: controller.soundEnabled,
+                        onChanged: (value) => controller.onSoundToggled(value),
+                      ),
+                      if (controller.soundEnabled) ...[
+                        ListTile(
+                          leading: const Icon(Icons.volume_up),
+                          title: const Text('Volumen'),
+                          subtitle: Slider(
+                            value: controller.soundVolume,
+                            min: 0.0,
+                            max: 1.0,
+                            divisions: 10,
+                            label: '${(controller.soundVolume * 100).round()}%',
+                            onChanged: (value) => controller.onSoundVolumeChanged(value),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Sección Acerca de
+                _buildSection(
+                  title: 'Acerca de',
+                  icon: Icons.info,
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.info_outline),
+                        title: const Text('Acerca de la aplicación'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => controller.onAboutPressed(),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.description),
+                        title: const Text('Términos y condiciones'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => controller.onTermsPressed(),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.privacy_tip),
+                        title: const Text('Política de privacidad'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => controller.onPrivacyPressed(),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Sección de Cuenta
+                _buildSection(
+                  title: 'Cuenta',
+                  icon: Icons.account_circle,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.error,
+                          minimumSize: const Size(double.infinity, 48),
+                        ),
+                        onPressed: () => _showLogoutConfirmation(controller),
+                        child: const Text('Cerrar sesión'),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 48),
+                          side: BorderSide(color: Theme.of(context).colorScheme.error),
+                        ),
+                        onPressed: () => _showDeleteAccountConfirmation(controller),
+                        child: Text(
+                          'Eliminar cuenta',
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.secondary,
+                          minimumSize: const Size(double.infinity, 48),
+                        ),
+                        onPressed: () => controller.onResetSettingsPressed(),
+                        child: const Text('Restablecer configuración'),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 32),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildSection({
     required String title,
-    required List<Widget> children,
+    required IconData icon,
+    required Widget child,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 16, bottom: 12),
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        GlassCard(
-          padding: EdgeInsets.zero,
-          child: Column(
-            children: children,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsTile({
-    required Widget leading,
-    required String title,
-    String? subtitle,
-    Widget? trailing,
-    VoidCallback? onTap,
-  }) {
-    return ListTile(
-      leading: leading,
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-              ),
-            )
-          : null,
-      trailing: trailing ??
-          Icon(
-            Icons.arrow_forward_ios,
-            size: 16,
-            color: Colors.white.withOpacity(0.6),
-          ),
-      onTap: onTap,
-    );
-  }
-
-  Widget _buildSwitchTile({
-    required Widget leading,
-    required String title,
-    String? subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return SwitchListTile(
-      secondary: leading,
-      title: Text(
-        title,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      subtitle: subtitle != null
-          ? Text(
-              subtitle,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-              ),
-            )
-          : null,
-      value: value,
-      onChanged: onChanged,
-      activeColor: Theme.of(context).colorScheme.primary,
-    );
-  }
-
-  Widget _buildProfileSection() {
-    return _buildSection(
-      title: 'Perfil',
-      children: [
-        _buildSettingsTile(
-          leading: CircleAvatar(
-            backgroundColor: Colors.white.withOpacity(0.2),
-            child: const Icon(Icons.person, color: Colors.white),
-          ),
-          title: 'Usuario Demo',
-          subtitle: 'usuario@breathe.com',
-          onTap: () {
-            _showEditProfileDialog();
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAppearanceSection() {
-    return _buildSection(
-      title: 'Apariencia',
-      children: [
-        _buildSettingsTile(
-          leading: const Icon(Icons.palette_outlined, color: Colors.white),
-          title: 'Tema',
-          subtitle: _selectedTheme,
-          onTap: () {
-            _showThemeDialog();
-          },
-        ),
-        _buildSettingsTile(
-          leading: const Icon(Icons.language_outlined, color: Colors.white),
-          title: 'Idioma',
-          subtitle: _selectedLanguage,
-          onTap: () {
-            _showLanguageDialog();
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNotificationsSection() {
-    return _buildSection(
-      title: 'Notificaciones',
-      children: [
-        _buildSwitchTile(
-          leading: const Icon(Icons.notifications_outlined, color: Colors.white),
-          title: 'Recordatorios',
-          subtitle: 'Recibir recordatorios para meditar',
-          value: _notificationsEnabled,
-          onChanged: (value) {
-            setState(() {
-              _notificationsEnabled = value;
-            });
-          },
-        ),
-        if (_notificationsEnabled)
-          _buildSettingsTile(
-            leading: const Icon(Icons.schedule_outlined, color: Colors.white),
-            title: 'Horarios',
-            subtitle: 'Configurar horarios de recordatorio',
-            onTap: () {
-              _showScheduleDialog();
-            },
-          ),
-      ],
-    );
-  }
-
-  Widget _buildAudioSection() {
-    return _buildSection(
-      title: 'Audio',
-      children: [
-        _buildSwitchTile(
-          leading: const Icon(Icons.volume_up_outlined, color: Colors.white),
-          title: 'Sonidos',
-          subtitle: 'Habilitar sonidos ambientales',
-          value: _soundEnabled,
-          onChanged: (value) {
-            setState(() {
-              _soundEnabled = value;
-            });
-          },
-        ),
-        if (_soundEnabled)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Column(
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.volume_mute_outlined, color: Colors.white),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Volumen',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            '${(_soundVolume * 100).round()}%',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                Icon(
+                  icon,
+                  color: Theme.of(context).primaryColor,
                 ),
-                Slider(
-                  value: _soundVolume,
-                  onChanged: (value) {
-                    setState(() {
-                      _soundVolume = value;
-                    });
-                  },
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  inactiveColor: Colors.white.withOpacity(0.3),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildAccountSection() {
-    return _buildSection(
-      title: 'Cuenta',
-      children: [
-        _buildSettingsTile(
-          leading: const Icon(Icons.backup_outlined, color: Colors.white),
-          title: 'Respaldo y sincronización',
-          subtitle: 'Guardar progreso en la nube',
-          onTap: () {
-            _showBackupDialog();
-          },
-        ),
-        _buildSettingsTile(
-          leading: const Icon(Icons.analytics_outlined, color: Colors.white),
-          title: 'Estadísticas',
-          subtitle: 'Ver tu progreso detallado',
-          onTap: () {
-            _showStatsDialog();
-          },
-        ),
-        _buildSettingsTile(
-          leading: const Icon(Icons.logout, color: Colors.red),
-          title: 'Cerrar sesión',
-          onTap: () {
-            _showLogoutDialog();
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoSection() {
-    return _buildSection(
-      title: 'Información',
-      children: [
-        _buildSettingsTile(
-          leading: const Icon(Icons.help_outline, color: Colors.white),
-          title: 'Ayuda y soporte',
-          onTap: () {
-            _showHelpDialog();
-          },
-        ),
-        _buildSettingsTile(
-          leading: const Icon(Icons.star_outline, color: Colors.white),
-          title: 'Calificar la app',
-          onTap: () {
-            _showRatingDialog();
-          },
-        ),
-        _buildSettingsTile(
-          leading: const Icon(Icons.info_outline, color: Colors.white),
-          title: 'Acerca de Breathe',
-          subtitle: 'Versión 1.0.0',
-          onTap: () {
-            _showAboutDialog();
-          },
-        ),
-      ],
-    );
-  }
-
-  // Dialog methods
-  void _showEditProfileDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => _buildGlassDialog(
-        title: 'Editar Perfil',
-        content: const Text(
-          'Función próximamente disponible',
-          style: TextStyle(color: Colors.white),
+            const SizedBox(height: 8),
+            child,
+          ],
         ),
       ),
     );
   }
 
-  void _showThemeDialog() {
+  void _showThemeDialog(SettingsController controller) {
     showDialog(
       context: context,
-      builder: (context) => _buildGlassDialog(
-        title: 'Seleccionar Tema',
+      builder: (context) => AlertDialog(
+        title: const Text('Seleccionar tema'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
-              title: const Text('Claro', style: TextStyle(color: Colors.white)),
-              value: 'Claro',
-              groupValue: _selectedTheme,
-              onChanged: (value) {
-                setState(() {
-                  _selectedTheme = value!;
-                });
-                Navigator.pop(context);
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('Oscuro', style: TextStyle(color: Colors.white)),
-              value: 'Oscuro',
-              groupValue: _selectedTheme,
-              onChanged: (value) {
-                setState(() {
-                  _selectedTheme = value!;
-                });
-                Navigator.pop(context);
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('Sistema', style: TextStyle(color: Colors.white)),
+              title: const Text('Sistema'),
               value: 'Sistema',
-              groupValue: _selectedTheme,
+              groupValue: controller.selectedTheme,
               onChanged: (value) {
-                setState(() {
-                  _selectedTheme = value!;
-                });
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showLanguageDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => _buildGlassDialog(
-        title: 'Seleccionar Idioma',
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<String>(
-              title: const Text('Español', style: TextStyle(color: Colors.white)),
-              value: 'Español',
-              groupValue: _selectedLanguage,
-              onChanged: (value) {
-                setState(() {
-                  _selectedLanguage = value!;
-                });
-                Navigator.pop(context);
+                if (value != null) {
+                  controller.onThemeSelected(value);
+                  context.pop();
+                }
               },
             ),
             RadioListTile<String>(
-              title: const Text('English', style: TextStyle(color: Colors.white)),
-              value: 'English',
-              groupValue: _selectedLanguage,
+              title: const Text('Claro'),
+              value: 'Claro',
+              groupValue: controller.selectedTheme,
               onChanged: (value) {
-                setState(() {
-                  _selectedLanguage = value!;
-                });
-                Navigator.pop(context);
+                if (value != null) {
+                  controller.onThemeSelected(value);
+                  context.pop();
+                }
+              },
+            ),
+            RadioListTile<String>(
+              title: const Text('Oscuro'),
+              value: 'Oscuro',
+              groupValue: controller.selectedTheme,
+              onChanged: (value) {
+                if (value != null) {
+                  controller.onThemeSelected(value);
+                  context.pop();
+                }
               },
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  void _showScheduleDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => _buildGlassDialog(
-        title: 'Configurar Horarios',
-        content: const Text(
-          'Aquí podrás configurar recordatorios personalizados para tus sesiones de meditación.',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  void _showBackupDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => _buildGlassDialog(
-        title: 'Respaldo y Sincronización',
-        content: const Text(
-          'Sincroniza tu progreso con la nube para no perder tus estadísticas.',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  void _showStatsDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => _buildGlassDialog(
-        title: 'Estadísticas Detalladas',
-        content: const Text(
-          'Visualiza gráficos y métricas de tu progreso en meditación.',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => _buildGlassDialog(
-        title: 'Cerrar Sesión',
-        content: const Text(
-          '¿Estás seguro de que deseas cerrar sesión?',
-          style: TextStyle(color: Colors.white),
         ),
         actions: [
-          SecondaryButton(
-            text: 'Cancelar',
-            onPressed: () => Navigator.pop(context),
-          ),
-          const SizedBox(width: 12),
-          PrimaryButton(
-            text: 'Cerrar Sesión',
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/login',
-                (route) => false,
-              );
-            },
+          TextButton(
+            onPressed: () => context.pop(),
+            child: const Text('Cancelar'),
           ),
         ],
       ),
     );
   }
 
-  void _showHelpDialog() {
+  void _showLanguageDialog(SettingsController controller) {
+    final languages = ['Español', 'English', 'Français', 'Português'];
     showDialog(
       context: context,
-      builder: (context) => _buildGlassDialog(
-        title: 'Ayuda y Soporte',
-        content: const Text(
-          'Para obtener ayuda, visita nuestro centro de soporte o contacta con nosotros.',
-          style: TextStyle(color: Colors.white),
+      builder: (context) => AlertDialog(
+        title: const Text('Seleccionar idioma'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: languages.map((language) => RadioListTile<String>(
+            title: Text(language),
+            value: language,
+            groupValue: controller.selectedLanguage,
+            onChanged: (value) {
+              if (value != null) {
+                controller.onLanguageSelected(value);
+                context.pop();
+              }
+            },
+          )).toList(),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => context.pop(),
+            child: const Text('Cancelar'),
+          ),
+        ],
       ),
     );
   }
 
-  void _showRatingDialog() {
+  void _showEditProfileDialog(SettingsController controller) {
+    final nameController = TextEditingController(text: controller.userName);
+    final emailController = TextEditingController(text: controller.userEmail);
+
     showDialog(
       context: context,
-      builder: (context) => _buildGlassDialog(
-        title: 'Calificar Breathe',
-        content: const Text(
-          '¿Te gusta nuestra app? ¡Ayúdanos calificándola en la tienda!',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  void _showAboutDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => _buildGlassDialog(
-        title: 'Acerca de Breathe',
-        content: const Text(
-          'Breathe v1.0.0\n\nUna aplicación de meditación y bienestar diseñada para ayudarte a encontrar la calma en tu día a día.',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlassDialog({
-    required String title,
-    required Widget content,
-    List<Widget>? actions,
-  }) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: GlassCard(
-        padding: const EdgeInsets.all(24),
-        child: Column(
+      builder: (context) => AlertDialog(
+        title: const Text('Editar perfil'),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Nombre'),
             ),
             const SizedBox(height: 16),
-            content,
-            if (actions != null) ...[
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: actions,
-              ),
-            ] else ...[
-              const SizedBox(height: 24),
-              PrimaryButton(
-                text: 'Entendido',
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
+            ),
           ],
         ),
+        actions: [
+          TextButton(
+            onPressed: () => context.pop(),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              controller.onProfileUpdated(
+                nameController.text,
+                emailController.text,
+                controller.userAvatar,
+              );
+              context.pop();
+              _showSuccess('Perfil actualizado correctamente');
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutConfirmation(SettingsController controller) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cerrar sesión'),
+        content: const Text('¿Estás seguro de que quieres cerrar sesión?'),
+        actions: [
+          TextButton(
+            onPressed: () => context.pop(),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              controller.onLogoutPressed();
+              context.go('/login');
+            },
+            child: Text(
+              'Cerrar sesión',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountConfirmation(SettingsController controller) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar cuenta'),
+        content: const Text(
+          'Esta acción no se puede deshacer. Se eliminarán todos tus datos permanentemente.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => context.pop(),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.pop();
+              controller.onDeleteAccountPressed();
+              _showSuccess('Cuenta programada para eliminación');
+            },
+            child: Text(
+              'Eliminar',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
       ),
     );
   }

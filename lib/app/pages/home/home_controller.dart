@@ -1,5 +1,6 @@
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:logging/logging.dart';
+import '../../../app/utils/app_router.dart';
 import 'home_presenter.dart';
 
 /// Controller para la pantalla principal (Home) siguiendo Clean Architecture
@@ -10,7 +11,7 @@ import 'home_presenter.dart';
 /// - Manejar las estadísticas del usuario
 /// - Comunicarse con el presenter
 class HomeController extends Controller {
-  final HomePresenter homePresenter;
+  final HomePresenter _presenter;
   final Logger _logger = Logger('HomeController');
   
   // Estado del controller
@@ -36,7 +37,7 @@ class HomeController extends Controller {
   int get currentStreak => _userStats['streakDays'] ?? 0;
   double get weeklyProgress => _weeklyProgress;
 
-  HomeController(this.homePresenter);
+  HomeController() : _presenter = HomePresenter();
 
   @override
   void initListeners() {
@@ -52,7 +53,7 @@ class HomeController extends Controller {
     _loadUserStats();
     
     // Notificar al presenter que se inicializó
-    homePresenter.onHomeInitialized();
+    _presenter.onHomeInitialized();
   }
 
   /// Cambia la sección seleccionada
@@ -63,7 +64,7 @@ class HomeController extends Controller {
       _selectedSectionIndex = index;
       
       // Notificar al presenter del cambio
-      homePresenter.onSectionChanged(index);
+      _presenter.onSectionChanged(index);
       
       refreshUI();
     }
@@ -78,31 +79,21 @@ class HomeController extends Controller {
   /// Navega a la pantalla de ejercicio de respiración
   void navigateToBreathingExercise() {
     _logger.info('Navigating to breathing exercise');
-    homePresenter.onNavigateToBreathingExercise();
+    // Usar el AppRouter para navegar
+    final context = getStateKey().currentContext;
+    if (context != null) {
+      AppRouter.pushBreathingExercise(context);
+    }
   }
 
-  /// Navega a la pantalla de mindfulness
-  void navigateToMindfulness() {
-    _logger.info('Navigating to mindfulness');
-    homePresenter.onNavigateToMindfulness();
-  }
-
-  /// Navega a la pantalla de inteligencia emocional
-  void navigateToEmotionalIntelligence() {
-    _logger.info('Navigating to emotional intelligence');
-    homePresenter.onNavigateToEmotionalIntelligence();
-  }
-
-  /// Navega a las notificaciones
-  void navigateToNotifications() {
-    _logger.info('Navigating to notifications');
-    homePresenter.onNavigateToNotifications();
-  }
-
-  /// Navega a la configuración
+  /// Navega a la pantalla de configuración
   void navigateToSettings() {
     _logger.info('Navigating to settings');
-    homePresenter.onNavigateToSettings();
+    // Usar el AppRouter para navegar
+    final context = getStateKey().currentContext;
+    if (context != null) {
+      AppRouter.pushSettings(context);
+    }
   }
 
   /// Actualiza las estadísticas del usuario
@@ -115,7 +106,7 @@ class HomeController extends Controller {
     if (totalMinutes != null) _userStats['totalMinutes'] = totalMinutes;
     if (streakDays != null) _userStats['streakDays'] = streakDays;
     
-    homePresenter.onStatsUpdated(_userStats);
+    _presenter.onStatsUpdated(_userStats);
     refreshUI();
   }
 
@@ -129,27 +120,27 @@ class HomeController extends Controller {
       'streakDays': 7,
     };
     
-    homePresenter.onStatsLoaded(_userStats);
+    _presenter.onStatsLoaded(_userStats);
   }
 
   /// Incrementa las sesiones de hoy
   void incrementTodaySessions() {
     _userStats['sessionsToday'] = (_userStats['sessionsToday'] ?? 0) + 1;
-    homePresenter.onStatsUpdated(_userStats);
+    _presenter.onStatsUpdated(_userStats);
     refreshUI();
   }
 
   /// Añade minutos al total
   void addMinutesToTotal(int minutes) {
     _userStats['totalMinutes'] = (_userStats['totalMinutes'] ?? 0) + minutes;
-    homePresenter.onStatsUpdated(_userStats);
+    _presenter.onStatsUpdated(_userStats);
     refreshUI();
   }
 
   /// Actualiza la racha de días
   void updateStreakDays(int days) {
     _userStats['streakDays'] = days;
-    homePresenter.onStatsUpdated(_userStats);
+    _presenter.onStatsUpdated(_userStats);
     refreshUI();
   }
 
@@ -224,7 +215,7 @@ class HomeController extends Controller {
 
   void onExerciseSelected(String exerciseType) {
     _logger.info('Exercise selected: $exerciseType');
-    homePresenter.onExerciseSelected(exerciseType);
+    _presenter.onExerciseSelected(exerciseType);
   }
 
   void onStartBreathingExercise() {
@@ -248,7 +239,7 @@ class HomeController extends Controller {
   @override
   void onDisposed() {
     _logger.info('Disposing HomeController');
-    homePresenter.dispose();
+    _presenter.dispose();
     super.onDisposed();
   }
 }

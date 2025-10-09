@@ -7,16 +7,16 @@ import 'package:logging/logging.dart';
 class HomePresenter extends Presenter {
   final Logger _logger = Logger('HomePresenter');
   
-  // Referencias para la vista
-  late Function onNavigateToBreathingExerciseView;
-  late Function onNavigateToMindfulnessView;
-  late Function onNavigateToEmotionalIntelligenceView;
-  late Function onNavigateToNotificationsView;
-  late Function onNavigateToSettingsView;
-  late Function(String) onShowError;
-  late Function(String) onShowSuccess;
-  late Function(int) onSectionChangedInView;
-  late Function(Map<String, dynamic>) onStatsUpdatedInView;
+  // Referencias para la vista - usando nullable para evitar late initialization error
+  Function? onNavigateToBreathingExerciseView;
+  Function? onNavigateToMindfulnessView;
+  Function? onNavigateToEmotionalIntelligenceView;
+  Function? onNavigateToNotificationsView;
+  Function? onNavigateToSettingsView;
+  Function(String)? onShowError;
+  Function(String)? onShowSuccess;
+  Function(int)? onSectionChangedInView;
+  Function(Map<String, dynamic>)? onStatsUpdatedInView;
   
   @override
   void dispose() {
@@ -60,7 +60,7 @@ class HomePresenter extends Presenter {
     HapticFeedback.selectionClick();
     
     // Notificar a la vista del cambio
-    onSectionChangedInView(index);
+    onSectionChangedInView?.call(index);
     
     // Log de analytics (en producción)
     _logSectionChange(index);
@@ -74,7 +74,7 @@ class HomePresenter extends Presenter {
     HapticFeedback.lightImpact();
     
     // Navegar a la vista
-    onNavigateToBreathingExerciseView();
+    onNavigateToBreathingExerciseView?.call();
   }
   
   /// Se llama cuando se navega a mindfulness
@@ -85,7 +85,7 @@ class HomePresenter extends Presenter {
     HapticFeedback.lightImpact();
     
     // Mostrar mensaje de funcionalidad próximamente (por ahora)
-    onShowSuccess('Función de Mindfulness próximamente');
+    onShowSuccess?.call('Función de Mindfulness próximamente');
   }
   
   /// Se llama cuando se navega a inteligencia emocional
@@ -96,7 +96,7 @@ class HomePresenter extends Presenter {
     HapticFeedback.lightImpact();
     
     // Mostrar mensaje de funcionalidad próximamente (por ahora)
-    onShowSuccess('Función de Inteligencia Emocional próximamente');
+    onShowSuccess?.call('Función de Inteligencia Emocional próximamente');
   }
   
   /// Se llama cuando se navega a notificaciones
@@ -107,7 +107,7 @@ class HomePresenter extends Presenter {
     HapticFeedback.lightImpact();
     
     // Mostrar mensaje de funcionalidad próximamente (por ahora)
-    onShowSuccess('Función de Notificaciones próximamente');
+    onShowSuccess?.call('Función de Notificaciones próximamente');
   }
   
   /// Se llama cuando se navega a configuración
@@ -118,7 +118,7 @@ class HomePresenter extends Presenter {
     HapticFeedback.lightImpact();
     
     // Navegar a la vista de configuración
-    onNavigateToSettingsView();
+    onNavigateToSettingsView?.call();
   }
   
   /// Se llama cuando se cargan las estadísticas
@@ -127,10 +127,10 @@ class HomePresenter extends Presenter {
     
     // Validar las estadísticas
     if (_validateStats(stats)) {
-      onStatsUpdatedInView(stats);
+      onStatsUpdatedInView?.call(stats);
     } else {
       _logger.warning('Invalid stats format');
-      onShowError('Error cargando estadísticas');
+      onShowError?.call('Error cargando estadísticas');
     }
   }
   
@@ -140,13 +140,13 @@ class HomePresenter extends Presenter {
     
     // Validar las estadísticas
     if (_validateStats(stats)) {
-      onStatsUpdatedInView(stats);
+      onStatsUpdatedInView?.call(stats);
       
       // Mostrar feedback positivo si es una mejora significativa
       _checkForAchievements(stats);
     } else {
       _logger.warning('Invalid stats format in update');
-      onShowError('Error actualizando estadísticas');
+      onShowError?.call('Error actualizando estadísticas');
     }
   }
   
@@ -177,30 +177,30 @@ class HomePresenter extends Presenter {
     
     // Logro: Primera sesión del día
     if (sessionsToday == 1) {
-      onShowSuccess('¡Primera sesión del día completada! 🎉');
+      onShowSuccess?.call('¡Primera sesión del día completada! 🎉');
     }
     
     // Logro: Múltiples sesiones
     if (sessionsToday == 3) {
-      onShowSuccess('¡3 sesiones hoy! Estás en racha 🔥');
+      onShowSuccess?.call('¡3 sesiones hoy! Estás en racha 🔥');
     }
     
     // Logro: Racha de días
     if (streakDays > 0 && streakDays % 7 == 0) {
-      onShowSuccess('¡${streakDays} días de racha! Increíble constancia 🌟');
+      onShowSuccess?.call('¡${streakDays} días de racha! Increíble constancia 🌟');
     }
     
     // Logro: Minutos totales
     if (totalMinutes > 0 && totalMinutes % 60 == 0) {
       final hours = totalMinutes ~/ 60;
-      onShowSuccess('¡$hours hora${hours != 1 ? 's' : ''} de práctica! Sigue así 💪');
+      onShowSuccess?.call('¡$hours hora${hours != 1 ? 's' : ''} de práctica! Sigue así 💪');
     }
   }
   
   /// Maneja errores generales de la pantalla home
   void handleError(String error) {
     _logger.severe('Error in home screen: $error');
-    onShowError(error);
+    onShowError?.call(error);
   }
   
   /// Formatea mensajes de éxito

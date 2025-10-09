@@ -7,21 +7,21 @@ import 'package:logging/logging.dart';
 class SettingsPresenter extends Presenter {
   final Logger _logger = Logger('SettingsPresenter');
   
-  // Referencias para la vista
-  late Function(String) onShowThemeDialogView;
-  late Function(List<String>) onShowLanguageDialogView;
-  late Function onShowEditProfileDialogView;
-  late Function onNavigateToAboutView;
-  late Function onNavigateToTermsView;
-  late Function onNavigateToPrivacyView;
-  late Function onNavigateToSupportView;
-  late Function onLogoutView;
-  late Function onDeleteAccountView;
-  late Function onExportDataView;
-  late Function(String) onShowError;
-  late Function(String) onShowSuccess;
-  late Function(Map<String, dynamic>) onSettingsUpdated;
-  late Function(Map<String, dynamic>) onProfileUpdated;
+  // Referencias para la vista - usando nullable para evitar late initialization error
+  Function(String)? onShowThemeDialogView;
+  Function(List<String>)? onShowLanguageDialogView;
+  Function? onShowEditProfileDialogView;
+  Function? onNavigateToAboutView;
+  Function? onNavigateToTermsView;
+  Function? onNavigateToPrivacyView;
+  Function? onNavigateToSupportView;
+  Function? onLogoutView;
+  Function? onDeleteAccountView;
+  Function? onExportDataView;
+  Function(String)? onShowError;
+  Function(String)? onShowSuccess;
+  Function(Map<String, dynamic>)? onSettingsUpdated;
+  Function(Map<String, dynamic>)? onProfileUpdated;
   
   @override
   void dispose() {
@@ -64,7 +64,7 @@ class SettingsPresenter extends Presenter {
   /// Se llama cuando se inicializa la pantalla de configuración
   void onSettingsInitialized() {
     _logger.info('Settings screen initialized');
-    onShowSuccess('Configuración cargada');
+    onShowSuccess?.call('Configuración cargada');
   }
   
   /// Se llama cuando se cambia el tema
@@ -75,7 +75,7 @@ class SettingsPresenter extends Presenter {
     HapticFeedback.selectionClick();
     
     // Mostrar confirmación
-    onShowSuccess('Tema cambiado a: ${_getThemeDisplayName(theme)}');
+    onShowSuccess?.call('Tema cambiado a: ${_getThemeDisplayName(theme)}');
     
     // Aplicar el tema (en producción se comunicaría con el sistema de temas)
     _applyTheme(theme);
@@ -89,7 +89,7 @@ class SettingsPresenter extends Presenter {
     HapticFeedback.selectionClick();
     
     // Mostrar confirmación
-    onShowSuccess('Idioma cambiado a: $language');
+    onShowSuccess?.call('Idioma cambiado a: $language');
     
     // Aplicar el idioma (en producción se comunicaría con el sistema de localización)
     _applyLanguage(language);
@@ -103,10 +103,10 @@ class SettingsPresenter extends Presenter {
     HapticFeedback.lightImpact();
     
     if (enabled) {
-      onShowSuccess('Notificaciones activadas');
+      onShowSuccess?.call('Notificaciones activadas');
       _requestNotificationPermissions();
     } else {
-      onShowSuccess('Notificaciones desactivadas');
+      onShowSuccess?.call('Notificaciones desactivadas');
     }
   }
   
@@ -118,9 +118,9 @@ class SettingsPresenter extends Presenter {
     HapticFeedback.lightImpact();
     
     if (enabled) {
-      onShowSuccess('Sonidos activados');
+      onShowSuccess?.call('Sonidos activados');
     } else {
-      onShowSuccess('Sonidos desactivados');
+      onShowSuccess?.call('Sonidos desactivados');
     }
   }
   
@@ -144,7 +144,7 @@ class SettingsPresenter extends Presenter {
     
     // Validar datos del perfil
     if (_validateProfileData(name, email)) {
-      onShowSuccess('Perfil actualizado correctamente');
+      onShowSuccess?.call('Perfil actualizado correctamente');
       
       final profileData = {
         'name': name,
@@ -152,57 +152,57 @@ class SettingsPresenter extends Presenter {
         'avatar': avatar,
       };
       
-      onProfileUpdated(profileData);
+      onProfileUpdated?.call(profileData);
     } else {
-      onShowError('Error: Datos del perfil inválidos');
+      onShowError?.call('Error: Datos del perfil inválidos');
     }
   }
   
   /// Se llama cuando se muestra el diálogo de tema
   void onShowThemeDialog() {
     _logger.info('Showing theme dialog');
-    onShowThemeDialogView('Seleccionar tema');
+    onShowThemeDialogView?.call('Seleccionar tema');
   }
   
   /// Se llama cuando se muestra el diálogo de idioma
   void onShowLanguageDialog() {
     _logger.info('Showing language dialog');
     final languages = ['Español', 'English', 'Français', 'Português'];
-    onShowLanguageDialogView(languages);
+    onShowLanguageDialogView?.call(languages);
   }
   
   /// Se llama cuando se muestra el diálogo de edición de perfil
   void onShowEditProfileDialog() {
     _logger.info('Showing edit profile dialog');
-    onShowEditProfileDialogView();
+    onShowEditProfileDialogView?.call();
   }
   
   /// Se llama cuando se navega a la información de la app
   void onNavigateToAbout() {
     _logger.info('Navigating to about');
     HapticFeedback.lightImpact();
-    onNavigateToAboutView();
+    onNavigateToAboutView?.call();
   }
   
   /// Se llama cuando se navega a términos y condiciones
   void onNavigateToTerms() {
     _logger.info('Navigating to terms');
     HapticFeedback.lightImpact();
-    onNavigateToTermsView();
+    onNavigateToTermsView?.call();
   }
   
   /// Se llama cuando se navega a política de privacidad
   void onNavigateToPrivacy() {
     _logger.info('Navigating to privacy');
     HapticFeedback.lightImpact();
-    onNavigateToPrivacyView();
+    onNavigateToPrivacyView?.call();
   }
   
   /// Se llama cuando se navega al soporte
   void onNavigateToSupport() {
     _logger.info('Navigating to support');
     HapticFeedback.lightImpact();
-    onNavigateToSupportView();
+    onNavigateToSupportView?.call();
   }
   
   /// Se llama cuando se solicita cerrar sesión
@@ -228,27 +228,27 @@ class SettingsPresenter extends Presenter {
     _logger.info('Data export requested');
     HapticFeedback.lightImpact();
     
-    onShowSuccess('Preparando exportación de datos...');
+    onShowSuccess?.call('Preparando exportación de datos...');
     _initiateDataExport();
   }
   
   /// Se llama cuando se guardan las configuraciones
   void onSettingsSaved(Map<String, dynamic> settings) {
     _logger.info('Settings saved: $settings');
-    onSettingsUpdated(settings);
+    onSettingsUpdated?.call(settings);
   }
   
   /// Se llama cuando se guarda el perfil
   void onProfileSaved(Map<String, dynamic> profile) {
     _logger.info('Profile saved: $profile');
-    onProfileUpdated(profile);
+    onProfileUpdated?.call(profile);
   }
   
   /// Se llama cuando se resetean las configuraciones
   void onSettingsReset() {
     _logger.info('Settings reset to defaults');
     HapticFeedback.mediumImpact();
-    onShowSuccess('Configuración restablecida a valores por defecto');
+    onShowSuccess?.call('Configuración restablecida a valores por defecto');
   }
   
   /// Aplica el tema seleccionado
@@ -293,14 +293,14 @@ class SettingsPresenter extends Presenter {
   void _showLogoutConfirmation() {
     // En producción, esto mostraría un diálogo de confirmación
     _logger.info('Showing logout confirmation');
-    onLogoutView();
+    onLogoutView?.call();
   }
   
   /// Muestra advertencia de eliminación de cuenta
   void _showAccountDeletionWarning() {
     // En producción, esto mostraría un diálogo de advertencia severa
     _logger.info('Showing account deletion warning');
-    onDeleteAccountView();
+    onDeleteAccountView?.call();
   }
   
   /// Inicia la exportación de datos
@@ -310,8 +310,8 @@ class SettingsPresenter extends Presenter {
     
     // Simular proceso de exportación
     Future.delayed(const Duration(seconds: 2), () {
-      onShowSuccess('Datos exportados correctamente');
-      onExportDataView();
+      onShowSuccess?.call('Datos exportados correctamente');
+      onExportDataView?.call();
     });
   }
   
@@ -332,7 +332,7 @@ class SettingsPresenter extends Presenter {
   /// Maneja errores generales de la configuración
   void handleError(String error) {
     _logger.severe('Error in settings: $error');
-    onShowError(error);
+    onShowError?.call(error);
   }
   
   /// Formatea mensajes de configuración

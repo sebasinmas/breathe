@@ -1,5 +1,6 @@
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:logging/logging.dart';
+import 'settings_presenter.dart';
 
 /// Controller para la pantalla de configuración siguiendo Clean Architecture
 /// 
@@ -9,7 +10,7 @@ import 'package:logging/logging.dart';
 /// - Manejar el perfil del usuario
 /// - Comunicarse con el presenter
 class SettingsController extends Controller {
-  final SettingsPresenter settingsPresenter;
+  final SettingsPresenter _presenter;
   final Logger _logger = Logger('SettingsController');
   
   // Estado de las configuraciones
@@ -34,7 +35,7 @@ class SettingsController extends Controller {
   String get userEmail => _userEmail;
   String? get userAvatar => _userAvatar;
 
-  SettingsController(this.settingsPresenter);
+  SettingsController() : _presenter = SettingsPresenter();
 
   @override
   void initListeners() {
@@ -50,7 +51,7 @@ class SettingsController extends Controller {
     _loadSettings();
     
     // Notificar al presenter que se inicializó
-    settingsPresenter.onSettingsInitialized();
+    _presenter.onSettingsInitialized();
   }
 
   /// Cambia el tema de la aplicación
@@ -64,7 +65,7 @@ class SettingsController extends Controller {
       _saveSettings();
       
       // Notificar al presenter
-      settingsPresenter.onThemeChanged(theme);
+      _presenter.onThemeChanged(theme);
       
       refreshUI();
     }
@@ -81,7 +82,7 @@ class SettingsController extends Controller {
       _saveSettings();
       
       // Notificar al presenter
-      settingsPresenter.onLanguageChanged(language);
+      _presenter.onLanguageChanged(language);
       
       refreshUI();
     }
@@ -98,7 +99,7 @@ class SettingsController extends Controller {
       _saveSettings();
       
       // Notificar al presenter
-      settingsPresenter.onNotificationsToggled(enabled);
+      _presenter.onNotificationsToggled(enabled);
       
       refreshUI();
     }
@@ -115,7 +116,7 @@ class SettingsController extends Controller {
       _saveSettings();
       
       // Notificar al presenter
-      settingsPresenter.onSoundToggled(enabled);
+      _presenter.onSoundToggled(enabled);
       
       refreshUI();
     }
@@ -132,7 +133,7 @@ class SettingsController extends Controller {
       _saveSettings();
       
       // Notificar al presenter
-      settingsPresenter.onSoundVolumeChanged(volume);
+      _presenter.onSoundVolumeChanged(volume);
       
       refreshUI();
     }
@@ -168,7 +169,11 @@ class SettingsController extends Controller {
       _saveProfile();
       
       // Notificar al presenter
-      settingsPresenter.onProfileUpdated(_userName, _userEmail, _userAvatar);
+      _presenter.onProfileUpdated?.call({
+        'name': _userName,
+        'email': _userEmail,
+        'avatar': _userAvatar,
+      });
       
       refreshUI();
     }
@@ -176,59 +181,59 @@ class SettingsController extends Controller {
 
   /// Muestra el diálogo de cambio de tema
   void showThemeDialog() {
-    settingsPresenter.onShowThemeDialog();
+    _presenter.onShowThemeDialog();
   }
 
   /// Muestra el diálogo de cambio de idioma
   void showLanguageDialog() {
-    settingsPresenter.onShowLanguageDialog();
+    _presenter.onShowLanguageDialog();
   }
 
   /// Muestra el diálogo de edición de perfil
   void showEditProfileDialog() {
-    settingsPresenter.onShowEditProfileDialog();
+    _presenter.onShowEditProfileDialog();
   }
 
   /// Navega a la información de la app
   void navigateToAbout() {
     _logger.info('Navigating to about');
-    settingsPresenter.onNavigateToAbout();
+    _presenter.onNavigateToAbout();
   }
 
   /// Navega a los términos y condiciones
   void navigateToTerms() {
     _logger.info('Navigating to terms');
-    settingsPresenter.onNavigateToTerms();
+    _presenter.onNavigateToTerms();
   }
 
   /// Navega a la política de privacidad
   void navigateToPrivacy() {
     _logger.info('Navigating to privacy');
-    settingsPresenter.onNavigateToPrivacy();
+    _presenter.onNavigateToPrivacy();
   }
 
   /// Navega al soporte
   void navigateToSupport() {
     _logger.info('Navigating to support');
-    settingsPresenter.onNavigateToSupport();
+    _presenter.onNavigateToSupport();
   }
 
   /// Cierra sesión del usuario
   void logout() {
     _logger.info('User logout initiated');
-    settingsPresenter.onLogoutRequested();
+    _presenter.onLogoutRequested();
   }
 
   /// Elimina la cuenta del usuario
   void deleteAccount() {
     _logger.info('Account deletion requested');
-    settingsPresenter.onAccountDeletionRequested();
+    _presenter.onAccountDeletionRequested();
   }
 
   /// Exporta los datos del usuario
   void exportData() {
     _logger.info('Data export requested');
-    settingsPresenter.onDataExportRequested();
+    _presenter.onDataExportRequested();
   }
 
   /// Resetea todas las configuraciones a valores por defecto
@@ -242,7 +247,7 @@ class SettingsController extends Controller {
     _soundVolume = 0.7;
     
     _saveSettings();
-    settingsPresenter.onSettingsReset();
+    _presenter.onSettingsReset();
     
     refreshUI();
   }
@@ -270,7 +275,7 @@ class SettingsController extends Controller {
     };
     
     // En producción: guardar en almacenamiento local
-    settingsPresenter.onSettingsSaved(settings);
+    _presenter.onSettingsSaved(settings);
   }
 
   /// Guarda el perfil del usuario
@@ -285,7 +290,7 @@ class SettingsController extends Controller {
     };
     
     // En producción: guardar en backend/almacenamiento local
-    settingsPresenter.onProfileSaved(profile);
+    _presenter.onProfileSaved(profile);
   }
 
   /// Obtiene los temas disponibles
@@ -311,23 +316,23 @@ class SettingsController extends Controller {
   /// Métodos de interacción con la vista
   void onEditProfilePressed() {
     _logger.info('Edit profile pressed');
-    settingsPresenter.onShowEditProfileDialog();
+    _presenter.onShowEditProfileDialog();
   }
 
   void onThemePressed() {
     _logger.info('Theme pressed');
-    settingsPresenter.onShowThemeDialog();
+    _presenter.onShowThemeDialog();
   }
 
   void onLanguagePressed() {
     _logger.info('Language pressed');
-    settingsPresenter.onShowLanguageDialog();
+    _presenter.onShowLanguageDialog();
   }
 
   void onNotificationsToggled(bool value) {
     _logger.info('Notifications toggled: $value');
     _notificationsEnabled = value;
-    settingsPresenter.onNotificationsToggled(value);
+    _presenter.onNotificationsToggled(value);
     refreshUI();
   }
 
@@ -339,70 +344,70 @@ class SettingsController extends Controller {
   void onSoundToggled(bool value) {
     _logger.info('Sound toggled: $value');
     _soundEnabled = value;
-    settingsPresenter.onSoundToggled(value);
+    _presenter.onSoundToggled(value);
     refreshUI();
   }
 
   void onSoundVolumeChanged(double value) {
     _logger.info('Sound volume changed: $value');
     _soundVolume = value;
-    settingsPresenter.onSoundVolumeChanged(value);
+    _presenter.onSoundVolumeChanged(value);
     refreshUI();
   }
 
   void onAboutPressed() {
     _logger.info('About pressed');
-    settingsPresenter.onNavigateToAbout();
+    _presenter.onNavigateToAbout();
   }
 
   void onTermsPressed() {
     _logger.info('Terms pressed');
-    settingsPresenter.onNavigateToTerms();
+    _presenter.onNavigateToTerms();
   }
 
   void onPrivacyPressed() {
     _logger.info('Privacy pressed');
-    settingsPresenter.onNavigateToPrivacy();
+    _presenter.onNavigateToPrivacy();
   }
 
   void onSupportPressed() {
     _logger.info('Support pressed');
-    settingsPresenter.onNavigateToSupport();
+    _presenter.onNavigateToSupport();
   }
 
   void onExportDataPressed() {
     _logger.info('Export data pressed');
-    settingsPresenter.onDataExportRequested();
+    _presenter.onDataExportRequested();
   }
 
   void onLogoutPressed() {
     _logger.info('Logout pressed');
-    settingsPresenter.onLogoutRequested();
+    _presenter.onLogoutRequested();
   }
 
   void onDeleteAccountPressed() {
     _logger.info('Delete account pressed');
-    settingsPresenter.onAccountDeletionRequested();
+    _presenter.onAccountDeletionRequested();
   }
 
   void onResetSettingsPressed() {
     _logger.info('Reset settings pressed');
     _resetToDefaults();
-    settingsPresenter.onSettingsReset();
+    _presenter.onSettingsReset();
     refreshUI();
   }
 
   void onThemeSelected(String theme) {
     _logger.info('Theme selected: $theme');
     _selectedTheme = theme;
-    settingsPresenter.onThemeChanged(theme);
+    _presenter.onThemeChanged(theme);
     refreshUI();
   }
 
   void onLanguageSelected(String language) {
     _logger.info('Language selected: $language');
     _selectedLanguage = language;
-    settingsPresenter.onLanguageChanged(language);
+    _presenter.onLanguageChanged(language);
     refreshUI();
   }
 
@@ -413,7 +418,7 @@ class SettingsController extends Controller {
     if (avatar != null) {
       _userAvatar = avatar;
     }
-    settingsPresenter.onProfileUpdateRequested(name, email, avatar);
+    _presenter.onProfileUpdateRequested(name, email, avatar);
     refreshUI();
   }
 
@@ -429,7 +434,7 @@ class SettingsController extends Controller {
   @override
   void onDisposed() {
     _logger.info('Disposing SettingsController');
-    settingsPresenter.dispose();
+    _presenter.dispose();
     super.onDisposed();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
+import 'package:go_router/go_router.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/primary_button.dart';
 import '../../widgets/input_field.dart';
@@ -92,7 +93,7 @@ class _LoginViewState extends CleanViewState<LoginPage, LoginController>
   void _checkAuthenticationResult(LoginController loginController) {
     // Si hay usuario autenticado, navegar
     if (loginController.authenticatedUser != null) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      context.go('/home');
     }
     
     // Si hay error, mostrar mensaje
