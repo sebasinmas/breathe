@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/styles/app_theme.dart';
 import 'breathing_exercise_controller.dart';
@@ -326,27 +327,34 @@ class _BreathingExerciseViewState extends CleanViewState<BreathingExercisePage, 
               ),
             );
           },
-          child: Text(
-            _getCurrentPhaseText(controller),
+          child: AnimatedTextKit(
             key: ValueKey(_getCurrentPhaseText(controller)),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.5,
-              shadows: [
-                Shadow(
-                  color: Colors.black.withOpacity(0.7),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+            animatedTexts: [
+              TypewriterAnimatedText(
+                _getCurrentPhaseText(controller),
+                textStyle: TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.5,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.7),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                    Shadow(
+                      color: AppTheme.mintGreen.withOpacity(0.8),
+                      blurRadius: 20,
+                      offset: const Offset(0, 0),
+                    ),
+                  ],
                 ),
-                Shadow(
-                  color: AppTheme.mintGreen.withOpacity(0.8),
-                  blurRadius: 20,
-                  offset: const Offset(0, 0),
-                ),
-              ],
-            ),
+                speed: Duration(milliseconds: 100),
+              ),
+            ],
+            isRepeatingAnimation: false,
+            displayFullTextOnTap: true,
           ),
         ),
         

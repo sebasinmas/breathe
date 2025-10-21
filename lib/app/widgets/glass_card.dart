@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:flutter/material.dart';
 
-/// Widget reutilizable que implementa el efecto Glassmorphism refinado y elegante
+/// Widget reutilizable que implementa el efecto Glassmorphism 
 /// 
 /// Mejoras implementadas:
-/// - Opacidad reducida (0.1-0.12) para mayor elegancia
-/// - Blur más sutil (sigmaX: 8, sigmaY: 8)
-/// - Bordes finos y padding aireado
-/// - Sombras muy leves para profundidad sin pesadez
+/// - Usa implementación custom optimizada para la app
+/// - Configuración optimizada para iOS
+/// - Parámetros personalizables
 class GlassCard extends StatelessWidget {
   final Widget child;
   final double? width;
@@ -29,8 +28,8 @@ class GlassCard extends StatelessWidget {
     this.padding,
     this.margin,
     this.borderRadius,
-    this.blurAmount = 8.0, // Blur reducido para sutileza
-    this.opacity = 0.12, // Opacidad reducida para elegancia
+    this.blurAmount = 8.0,
+    this.opacity = 0.12,
     this.backgroundColor,
     this.border,
     this.onTap,
@@ -44,30 +43,26 @@ class GlassCard extends StatelessWidget {
     // Color de fondo más sutil y elegante
     final adaptiveBackgroundColor = backgroundColor ?? 
         (isDark 
-            ? Colors.white.withOpacity(opacity * 0.8) // Aún más sutil en modo oscuro
+            ? Colors.white.withOpacity(opacity * 0.8) 
             : Colors.white.withOpacity(opacity));
     
-    // Aislar el widget con RepaintBoundary para mejor rendimiento
-    Widget glassContainer = RepaintBoundary(
-      child: ClipRRect(
+    Widget glassContainer = ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.circular(16),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
         child: Container(
           width: width,
           height: height,
-          padding: padding ?? const EdgeInsets.all(20), // Padding más aireado
+          padding: padding ?? const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: adaptiveBackgroundColor,
             borderRadius: borderRadius ?? BorderRadius.circular(16),
             border: border ?? Border.all(
-              // Bordes muy finos y sutiles
               color: isDark 
                   ? Colors.white.withOpacity(0.15) 
                   : Colors.white.withOpacity(0.25),
-              width: 0.8, // Borde más fino
+              width: 0.8,
             ),
-            // Sombra muy sutil para profundidad sin pesadez
             boxShadow: [
               BoxShadow(
                 color: isDark 
@@ -82,7 +77,6 @@ class GlassCard extends StatelessWidget {
           child: child,
         ),
       ),
-    ),
     );
 
     // Si tiene onTap, envolver en GestureDetector

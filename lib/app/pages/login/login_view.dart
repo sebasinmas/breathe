@@ -58,7 +58,6 @@ class _LoginViewState extends CleanViewState<LoginPage, LoginController>
   /// Maneja el login con Google
   void _signInWithGoogle(LoginController loginController) {
     loginController.authenticateWithGoogle();
-    _checkAuthenticationResult(loginController);
   }
 
   /// Maneja el login con email y contraseña
@@ -69,7 +68,6 @@ class _LoginViewState extends CleanViewState<LoginPage, LoginController>
       _emailController.text,
       _passwordController.text,
     );
-    _checkAuthenticationResult(loginController);
   }
 
   /// Maneja el registro con email y contraseña
@@ -86,7 +84,6 @@ class _LoginViewState extends CleanViewState<LoginPage, LoginController>
       _emailController.text,
       _passwordController.text,
     );
-    _checkAuthenticationResult(loginController);
   }
 
   /// Verifica el resultado de la autenticación
@@ -99,6 +96,7 @@ class _LoginViewState extends CleanViewState<LoginPage, LoginController>
     // Si hay error, mostrar mensaje
     if (loginController.errorMessage != null) {
       _showErrorSnackBar(loginController.errorMessage!);
+      loginController.clearError();
     }
   }
 
@@ -144,33 +142,42 @@ class _LoginViewState extends CleanViewState<LoginPage, LoginController>
     return Scaffold(
       key: globalKey,
       resizeToAvoidBottomInset: true,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              colorScheme.primaryContainer,
-              colorScheme.secondaryContainer,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              children: [
-                const SizedBox(height: 40),
-                _buildHeader(),
-                const SizedBox(height: 40),
-                _buildAuthCard(),
-                const SizedBox(height: 24),
-              ],
+      body: ControlledWidgetBuilder<LoginController>(
+        builder: (context, loginController) {
+          // Verificar resultado de autenticación cuando el estado cambie
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _checkAuthenticationResult(loginController);
+          });
+          
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  colorScheme.primaryContainer,
+                  colorScheme.secondaryContainer,
+                ],
+              ),
             ),
-          ),
-        ),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    _buildHeader(),
+                    const SizedBox(height: 40),
+                    _buildAuthCard(),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../app/styles/app_theme.dart';
-import '../../../app/widgets/glass_card.dart';
 import 'home_controller.dart';
 
 /// Vista principal de Home siguiendo Clean Architecture
@@ -56,25 +56,35 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Hola, ${controller.userName}',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  Shimmer.fromColors(
+                    baseColor: Colors.white.withOpacity(0.8),
+                    highlightColor: Colors.white,
+                    child: Text(
+                      'Hola, ${controller.userName}',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                  ).animate()
+                    .fadeIn(duration: 800.ms)
+                    .slideX(begin: -0.3, end: 0),
                   Text(
                     'Respira y relájate',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Colors.grey[600],
                     ),
-                  ),
+                  ).animate()
+                    .fadeIn(delay: 200.ms, duration: 600.ms)
+                    .slideX(begin: -0.2, end: 0),
                 ],
               ),
               IconButton(
                 onPressed: () => controller.onSettingsPressed(),
                 icon: const Icon(Icons.settings),
                 iconSize: 28,
-              ),
+              ).animate()
+                .fadeIn(delay: 400.ms, duration: 600.ms)
+                .rotate(delay: 1000.ms, duration: 800.ms),
             ],
           ),
           
@@ -115,17 +125,17 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
         margin: const EdgeInsets.symmetric(horizontal: 4),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white.withOpacity(0.9),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.white.withOpacity(0.1),
-            width: 0.5,
+            color: AppTheme.lightGlass,
+            width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 30,
-              offset: const Offset(0, 15),
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -143,8 +153,13 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
                 ),
               ),
               child: Icon(icon, color: color, size: 22),
-            ),
+            ).animate()
+              .scale(delay: 400.ms, duration: 500.ms)
+              .then()
+              .shimmer(delay: 1000.ms, duration: 2000.ms),
+            
             const SizedBox(height: 12),
+            
             Text(
               value,
               style: AppTheme.textTheme.titleLarge?.copyWith(
@@ -152,17 +167,24 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
                 color: color,
                 letterSpacing: -0.5,
               ),
-            ),
+            ).animate()
+              .fadeIn(delay: 600.ms, duration: 400.ms)
+              .slideY(begin: 0.3, end: 0),
+            
             Text(
               title,
               style: AppTheme.textTheme.bodySmall?.copyWith(
                 color: Colors.grey[600],
                 fontWeight: FontWeight.w500,
               ),
-            ),
+            ).animate()
+              .fadeIn(delay: 700.ms, duration: 400.ms)
+              .slideY(begin: 0.2, end: 0),
           ],
         ),
-      ),
+      ).animate()
+        .fadeIn(duration: 800.ms)
+        .slideY(begin: 0.5, end: 0, duration: 800.ms),
     );
   }
 
@@ -203,7 +225,9 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
-      ),
+      ).animate()
+        .fadeIn(delay: (index * 100).ms, duration: 500.ms)
+        .slideX(begin: 0.3, end: 0),
     );
   }
 
@@ -262,17 +286,17 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 0.5,
+          color: AppTheme.lightGlass,
+          width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -298,52 +322,62 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
                         AppTheme.mintGreen.withOpacity(0.8),
                       ],
                     ),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
-                      width: 1,
-                    ),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.air,
                     color: Colors.white,
-                    size: 28,
+                    size: 32,
                   ),
-                ),
-                const SizedBox(width: 20),
+                ).animate()
+                  .scale(delay: 200.ms, duration: 300.ms)
+                  .then()
+                  .shimmer(delay: 800.ms, duration: 1200.ms),
+                
+                const SizedBox(width: 16),
+                
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        style: AppTheme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white.withOpacity(0.9),
-                          letterSpacing: -0.3,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.charcoal,
                         ),
-                      ),
-                      const SizedBox(height: 6),
+                      ).animate()
+                        .fadeIn(delay: 100.ms, duration: 400.ms)
+                        .slideX(begin: 0.2, end: 0),
+                      
+                      const SizedBox(height: 4),
+                      
                       Text(
                         description,
-                        style: AppTheme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.6),
-                          letterSpacing: -0.2,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.darkGlass,
                         ),
-                      ),
+                      ).animate()
+                        .fadeIn(delay: 200.ms, duration: 400.ms)
+                        .slideX(begin: 0.3, end: 0),
                     ],
                   ),
                 ),
+                
                 Icon(
-                  Icons.chevron_right,
-                  color: Colors.white.withOpacity(0.4),
+                  Icons.arrow_forward_ios,
+                  color: AppTheme.darkGlass,
                   size: 20,
-                ),
+                ).animate()
+                  .fadeIn(delay: 300.ms, duration: 400.ms)
+                  .slideX(begin: 0.5, end: 0),
               ],
             ),
           ),
         ),
       ),
-    );
+    ).animate()
+      .fadeIn(duration: 600.ms)
+      .slideY(begin: 0.3, end: 0, duration: 600.ms);
   }
 
   Widget _buildProgressSection(HomeController controller) {
@@ -356,7 +390,7 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
             'Tu Progreso',
             style: AppTheme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w600,
-              color: Colors.white.withOpacity(0.9),
+              color: AppTheme.charcoal,
             ),
           ),
           const SizedBox(height: 24),
@@ -435,7 +469,7 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
             'Meditación',
             style: AppTheme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w600,
-              color: Colors.white.withOpacity(0.9),
+              color: AppTheme.charcoal,
             ),
           ),
           const SizedBox(height: 32),
@@ -446,24 +480,31 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(60),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.1),
+                      color: AppTheme.lightGlass,
                       width: 1,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: Icon(
                     Icons.self_improvement,
                     size: 60,
-                    color: AppTheme.mintGreen.withOpacity(0.7),
+                    color: AppTheme.mintGreen,
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   'Próximamente',
                   style: AppTheme.textTheme.titleMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.6),
+                    color: AppTheme.darkGlass,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -472,7 +513,7 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
                   'Estamos preparando ejercicios de\nmeditación para ti',
                   textAlign: TextAlign.center,
                   style: AppTheme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.4),
+                    color: AppTheme.darkGlass.withOpacity(0.8),
                   ),
                 ),
               ],
@@ -493,7 +534,7 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
             'Favoritos',
             style: AppTheme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w600,
-              color: Colors.white.withOpacity(0.9),
+              color: AppTheme.charcoal,
             ),
           ),
           const SizedBox(height: 32),
@@ -504,24 +545,31 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(60),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.1),
+                      color: AppTheme.lightGlass,
                       width: 1,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
                   child: Icon(
                     Icons.favorite_outline,
                     size: 60,
-                    color: AppTheme.primaryBlue.withOpacity(0.7),
+                    color: AppTheme.primaryBlue,
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   'Aún no tienes favoritos',
                   style: AppTheme.textTheme.titleMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.6),
+                    color: AppTheme.darkGlass,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -530,7 +578,7 @@ class _HomePageState extends CleanViewState<HomePage, HomeController> {
                   'Guarda tus ejercicios favoritos\npara acceder rápidamente',
                   textAlign: TextAlign.center,
                   style: AppTheme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.4),
+                    color: AppTheme.darkGlass.withOpacity(0.8),
                   ),
                 ),
               ],
