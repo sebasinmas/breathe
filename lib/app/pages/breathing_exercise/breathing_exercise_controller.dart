@@ -24,10 +24,10 @@ class BreathingExerciseController extends Controller {
   bool _isPlaying = false;
   bool _isPaused = false;
   int _currentCycle = 0;
-  int _totalCycles = 8;
+  final int _totalCycles = 8;
   String _currentPhase = 'rest'; // 'inhale', 'hold', 'exhale', 'rest'
   String _selectedShape = 'circle'; // 'circle', 'square', 'triangle'
-  String _exerciseType = '4-7-8';
+  final String _exerciseType = '4-7-8';
   double _phaseProgress = 0.0;
   int _phaseTimeRemaining = 0;
   

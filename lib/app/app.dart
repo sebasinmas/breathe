@@ -13,15 +13,6 @@ class BreatheApp extends StatefulWidget {
 }
 
 class _BreatheAppState extends State<BreatheApp> {
-  // Notificador para cambios de tema
-  final ValueNotifier<ThemeMode> _themeNotifier = ValueNotifier(ThemeMode.system);
-
-  @override
-  void dispose() {
-    _themeNotifier.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -29,37 +20,27 @@ class _BreatheAppState extends State<BreatheApp> {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return ValueListenableBuilder<ThemeMode>(
-          valueListenable: _themeNotifier,
-          builder: (context, themeMode, child) {
-            return MaterialApp.router(
-              title: 'Breathe',
-              debugShowCheckedModeBanner: false,
-              
-              // Configuración de tema usando AppTheme
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: themeMode,
-              
-              // Configuración de rutas usando GoRouter
-              routerConfig: AppRouter.router,
-              
-              // Configuración adicional
-              builder: (context, child) {
-                return MediaQuery(
-                  data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-                  child: child!,
-                );
-              },
+        return MaterialApp.router(
+          title: 'Breathe',
+          debugShowCheckedModeBanner: false,
+          
+          // Configuración de tema usando AppTheme con Shadcn Dark
+          theme: AppTheme.darkTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeMode.dark, // Forzamos dark mode
+          
+          // Configuración de rutas usando GoRouter
+          routerConfig: AppRouter.router,
+          
+          // Configuración adicional
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(1.0)),
+              child: child!,
             );
           },
         );
       },
     );
-  }
-
-  /// Cambia el tema de la aplicación
-  void changeTheme(ThemeMode themeMode) {
-    _themeNotifier.value = themeMode;
   }
 }

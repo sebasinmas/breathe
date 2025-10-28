@@ -1,5 +1,6 @@
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:logging/logging.dart';
+import 'package:go_router/go_router.dart';
 import '../../../domain/usecases/authenticate_user_usecase.dart';
 import '../../../domain/entities/user.dart';
 
@@ -91,6 +92,15 @@ class LoginController extends Controller {
     _errorMessage = null;
     _authenticatedUser = user;
     refreshUI();
+    
+    // Navegar inmediatamente después de la autenticación exitosa
+    Future.microtask(() {
+      final context = getStateKey().currentContext;
+      if (context != null && context.mounted) {
+        // Usar go_router para navegar
+        context.go('/home');
+      }
+    });
   }
   
   /// Callback para error de autenticación

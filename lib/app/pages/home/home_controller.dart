@@ -1,6 +1,6 @@
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:logging/logging.dart';
-import '../../../app/utils/app_router.dart';
+import 'package:go_router/go_router.dart';
 import 'home_presenter.dart';
 
 /// Controller para la pantalla principal (Home) siguiendo Clean Architecture
@@ -79,20 +79,20 @@ class HomeController extends Controller {
   /// Navega a la pantalla de ejercicio de respiración
   void navigateToBreathingExercise() {
     _logger.info('Navigating to breathing exercise');
-    // Usar el AppRouter para navegar
+    // Usar go_router para navegar
     final context = getStateKey().currentContext;
-    if (context != null) {
-      AppRouter.pushBreathingExercise(context);
+    if (context != null && context.mounted) {
+      context.push('/breathing-exercise');
     }
   }
 
   /// Navega a la pantalla de configuración
   void navigateToSettings() {
     _logger.info('Navigating to settings');
-    // Usar el AppRouter para navegar
+    // Usar go_router para navegar
     final context = getStateKey().currentContext;
-    if (context != null) {
-      AppRouter.pushSettings(context);
+    if (context != null && context.mounted) {
+      context.push('/settings');
     }
   }
 

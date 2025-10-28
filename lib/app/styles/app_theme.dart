@@ -1,356 +1,377 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'app_colors.dart';
 
-/// Sistema de temas moderno inspirado en iOS con glassmorphism
-/// Paleta elegante, relajante y minimalista
+/// Sistema de tema unificado con Shadcn Dark + Glassmorphism
+/// Siguiendo estándares Apple y Shadcn UI para consistencia visual
 class AppTheme {
-  // PALETA DE COLORES GLASSMORPHISM INSPIRADA EN iOS
+  AppTheme._();
+
+  // ===== CONFIGURACIÓN DE TIPOGRAFÍA =====
   
-  // Colores primarios - Tonos azules relajantes
-  static const Color primaryBlue = Color(0xFF007AFF);      // Azul iOS principal
-  static const Color lightBlue = Color(0xFF64B5F6);        // Azul claro relajante
-  static const Color darkBlue = Color(0xFF1976D2);         // Azul oscuro elegante
+  /// Typography system basado en Inter (Shadcn estándar)
+  static TextTheme get _textTheme => GoogleFonts.interTextTheme().copyWith(
+    // Display styles
+    displayLarge: GoogleFonts.inter(
+      fontSize: 32.0,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.5,
+      color: AppColors.foreground,
+      height: 1.2,
+    ),
+    displayMedium: GoogleFonts.inter(
+      fontSize: 28.0,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -0.5,
+      color: AppColors.foreground,
+      height: 1.25,
+    ),
+    displaySmall: GoogleFonts.inter(
+      fontSize: 24.0,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -0.25,
+      color: AppColors.foreground,
+      height: 1.3,
+    ),
+    
+    // Headline styles
+    headlineLarge: GoogleFonts.inter(
+      fontSize: 22.0,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -0.25,
+      color: AppColors.foreground,
+      height: 1.35,
+    ),
+    headlineMedium: GoogleFonts.inter(
+      fontSize: 20.0,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0,
+      color: AppColors.foreground,
+      height: 1.4,
+    ),
+    headlineSmall: GoogleFonts.inter(
+      fontSize: 18.0,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0,
+      color: AppColors.foreground,
+      height: 1.4,
+    ),
+    
+    // Title styles
+    titleLarge: GoogleFonts.inter(
+      fontSize: 16.0,
+      fontWeight: FontWeight.w600,
+      letterSpacing: 0,
+      color: AppColors.foreground,
+      height: 1.5,
+    ),
+    titleMedium: GoogleFonts.inter(
+      fontSize: 14.0,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.1,
+      color: AppColors.foreground,
+      height: 1.5,
+    ),
+    titleSmall: GoogleFonts.inter(
+      fontSize: 12.0,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.1,
+      color: AppColors.mutedForeground,
+      height: 1.5,
+    ),
+    
+    // Body styles
+    bodyLarge: GoogleFonts.inter(
+      fontSize: 16.0,
+      fontWeight: FontWeight.w400,
+      letterSpacing: 0,
+      color: AppColors.foreground,
+      height: 1.6,
+    ),
+    bodyMedium: GoogleFonts.inter(
+      fontSize: 14.0,
+      fontWeight: FontWeight.w400,
+      letterSpacing: 0,
+      color: AppColors.foreground,
+      height: 1.6,
+    ),
+    bodySmall: GoogleFonts.inter(
+      fontSize: 12.0,
+      fontWeight: FontWeight.w400,
+      letterSpacing: 0,
+      color: AppColors.mutedForeground,
+      height: 1.5,
+    ),
+    
+    // Label styles
+    labelLarge: GoogleFonts.inter(
+      fontSize: 14.0,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.1,
+      color: AppColors.foreground,
+      height: 1.4,
+    ),
+    labelMedium: GoogleFonts.inter(
+      fontSize: 12.0,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.1,
+      color: AppColors.mutedForeground,
+      height: 1.4,
+    ),
+    labelSmall: GoogleFonts.inter(
+      fontSize: 10.0,
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0.1,
+      color: AppColors.mutedForeground,
+      height: 1.4,
+    ),
+  );
+
+  // ===== CONFIGURACIÓN DE COLORES =====
   
-  // Colores secundarios - Tonos verdes naturales
-  static const Color mintGreen = Color(0xFF00C896);        // Verde menta fresco
-  static const Color softGreen = Color(0xFF81C784);        // Verde suave
-  static const Color deepGreen = Color(0xFF388E3C);        // Verde profundo
+  /// ColorScheme dark con paleta Shadcn
+  static ColorScheme get _colorScheme => ColorScheme.dark(
+    // Primary colors
+    primary: AppColors.primary,
+    onPrimary: AppColors.primaryForeground,
+    primaryContainer: AppColors.primary.withValues(alpha: .2),
+    onPrimaryContainer: AppColors.primaryForeground,
+    
+    // Secondary colors
+    secondary: AppColors.secondary,
+    onSecondary: AppColors.secondaryForeground,
+    secondaryContainer: AppColors.secondary.withValues(alpha: .2),
+    onSecondaryContainer: AppColors.secondaryForeground,
+    
+    // Tertiary colors
+    tertiary: AppColors.accent,
+    onTertiary: AppColors.accentForeground,
+    tertiaryContainer: AppColors.accent.withValues(alpha: .2),
+    onTertiaryContainer: AppColors.accentForeground,
+    
+    // Background colors
+    surfaceContainer: AppColors.background,
+    onSurface: AppColors.foreground,
+    surface: AppColors.card,
+    onSurfaceVariant: AppColors.mutedForeground,
+    
+    // Error colors
+    error: AppColors.destructive,
+    onError: AppColors.destructiveForeground,
+    errorContainer: AppColors.destructive.withValues(alpha: .2),
+    onErrorContainer: AppColors.destructiveForeground,
+    
+    // Outline colors
+    outline: AppColors.border,
+    outlineVariant: AppColors.border.withValues(alpha: .5),
+    
+    // Surface colors
+    surfaceTint: AppColors.primary,
+    inverseSurface: AppColors.foreground,
+    onInverseSurface: AppColors.background,
+    inversePrimary: AppColors.primaryForeground,
+    
+    // Shadow and scrim
+    shadow: Colors.black.withValues(alpha: .3),
+    scrim: Colors.black.withValues(alpha: .6),
+
+    // Brightness
+    brightness: Brightness.dark,
+  );
+
+  // ===== CONFIGURACIONES DE COMPONENTES =====
   
-  // Colores de acento - Tonos cálidos sutiles
-  static const Color warmPeach = Color(0xFFFFB74D);        // Durazno cálido
-  static const Color softPink = Color(0xFFF8BBD9);         // Rosa suave
-  static const Color lavender = Color(0xFFD1C4E9);         // Lavanda relajante
-  
-  // Grises glassmorphism
-  static const Color glassWhite = Color(0xFFF8FAFC);       // Blanco vítreo
-  static const Color lightGlass = Color(0xFFF1F5F9);       // Gris muy claro
-  static const Color mediumGlass = Color(0xFFE2E8F0);      // Gris medio
-  static const Color darkGlass = Color(0xFF64748B);        // Gris oscuro
-  static const Color charcoal = Color(0xFF1E293B);         // Carbón elegante
-  
-  // Colores de superficie con transparencia
-  static const Color surfaceLight = Color(0x0DFFFFFF);     // Superficie clara
-  static const Color surfaceMedium = Color(0x1AFFFFFF);    // Superficie media
-  static const Color surfaceDark = Color(0x26000000);      // Superficie oscura
-  
-  // Gradientes glassmorphism
-  static const LinearGradient primaryGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-      Color(0xFF007AFF),
-      Color(0xFF64B5F6),
-    ],
+  /// AppBar theme con glassmorphism
+  static AppBarTheme get _appBarTheme => AppBarTheme(
+    backgroundColor: Colors.transparent,
+    foregroundColor: AppColors.foreground,
+    elevation: 0,
+    scrolledUnderElevation: 0,
+    centerTitle: false,
+    titleTextStyle: _textTheme.headlineMedium,
+    iconTheme: IconThemeData(
+      color: AppColors.foreground,
+      size: 24,
+    ),
+    actionsIconTheme: IconThemeData(
+      color: AppColors.foreground,
+      size: 24,
+    ),
   );
   
-  static const LinearGradient glassMorphGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [
-      Color(0x1AFFFFFF),
-      Color(0x0DFFFFFF),
-    ],
+  /// Card theme con glassmorphism
+  static CardThemeData get _cardTheme => CardThemeData(
+    color: Colors.transparent,
+    shadowColor: Colors.black.withValues(alpha: .3),
+    elevation: 0,
+    margin: const EdgeInsets.all(8),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+      side: BorderSide(
+        color: AppColors.border,
+        width: 1,
+      ),
+    ),
   );
   
-  static const LinearGradient backgroundGradient = LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [
-      Color(0xFFF8FAFC),
-      Color(0xFFE2E8F0),
-    ],
+  /// ElevatedButton theme
+  static ElevatedButtonThemeData get _elevatedButtonTheme => ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.primaryForeground,
+      disabledBackgroundColor: AppColors.muted,
+      disabledForegroundColor: AppColors.mutedForeground,
+      elevation: 0,
+      shadowColor: Colors.transparent,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      minimumSize: const Size(120, 48),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      textStyle: _textTheme.labelLarge,
+    ),
+  );
+  
+  /// OutlinedButton theme
+  static OutlinedButtonThemeData get _outlinedButtonTheme => OutlinedButtonThemeData(
+    style: OutlinedButton.styleFrom(
+      foregroundColor: AppColors.foreground,
+      disabledForegroundColor: AppColors.mutedForeground,
+      side: BorderSide(color: AppColors.border, width: 1),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      minimumSize: const Size(120, 48),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      textStyle: _textTheme.labelLarge,
+    ),
+  );
+  
+  /// TextButton theme
+  static TextButtonThemeData get _textButtonTheme => TextButtonThemeData(
+    style: TextButton.styleFrom(
+      foregroundColor: AppColors.primary,
+      disabledForegroundColor: AppColors.mutedForeground,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      minimumSize: const Size(64, 36),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: _textTheme.labelLarge,
+    ),
+  );
+  
+  /// InputDecoration theme
+  static InputDecorationTheme get _inputDecorationTheme => InputDecorationTheme(
+    filled: true,
+    fillColor: AppColors.input,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: AppColors.border, width: 1),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: AppColors.border, width: 1),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: AppColors.primary, width: 2),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: AppColors.destructive, width: 1),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: AppColors.destructive, width: 2),
+    ),
+    labelStyle: _textTheme.bodyMedium?.copyWith(
+      color: AppColors.mutedForeground,
+    ),
+    hintStyle: _textTheme.bodyMedium?.copyWith(
+      color: AppColors.mutedForeground.withValues(alpha: .6),
+    ),
+    helperStyle: _textTheme.bodySmall,
+    errorStyle: _textTheme.bodySmall?.copyWith(
+      color: AppColors.destructive,
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  );
+  
+  /// Floating Action Button theme
+  static FloatingActionButtonThemeData get _fabTheme => FloatingActionButtonThemeData(
+    backgroundColor: AppColors.primary,
+    foregroundColor: AppColors.primaryForeground,
+    elevation: 8,
+    highlightElevation: 12,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+    ),
+  );
+  
+  /// Bottom Navigation Bar theme
+  static BottomNavigationBarThemeData get _bottomNavTheme => BottomNavigationBarThemeData(
+    backgroundColor: AppColors.card.withValues(alpha: .95),
+    selectedItemColor: AppColors.primary,
+    unselectedItemColor: AppColors.mutedForeground,
+    type: BottomNavigationBarType.fixed,
+    elevation: 0,
+    selectedLabelStyle: _textTheme.labelSmall,
+    unselectedLabelStyle: _textTheme.labelSmall,
+  );
+  
+  /// Divider theme
+  static DividerThemeData get _dividerTheme => DividerThemeData(
+    color: AppColors.border,
+    thickness: 1,
+    space: 1,
   );
 
-  // TIPOGRAFÍA ELEGANTE
-  static TextTheme get textTheme {
-    return TextTheme(
-      // Headlines - Para títulos principales
-      displayLarge: GoogleFonts.inter(
-        fontSize: 32,
-        fontWeight: FontWeight.w700,
-        color: charcoal,
-        letterSpacing: -0.5,
-      ),
-      displayMedium: GoogleFonts.inter(
-        fontSize: 28,
-        fontWeight: FontWeight.w600,
-        color: charcoal,
-        letterSpacing: -0.3,
-      ),
-      displaySmall: GoogleFonts.inter(
-        fontSize: 24,
-        fontWeight: FontWeight.w600,
-        color: charcoal,
-        letterSpacing: -0.2,
-      ),
-      
-      // Headlines secundarios
-      headlineLarge: GoogleFonts.inter(
-        fontSize: 22,
-        fontWeight: FontWeight.w600,
-        color: charcoal,
-      ),
-      headlineMedium: GoogleFonts.inter(
-        fontSize: 20,
-        fontWeight: FontWeight.w500,
-        color: charcoal,
-      ),
-      headlineSmall: GoogleFonts.inter(
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-        color: charcoal,
-      ),
-      
-      // Títulos para componentes
-      titleLarge: GoogleFonts.inter(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: charcoal,
-      ),
-      titleMedium: GoogleFonts.inter(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        color: charcoal,
-      ),
-      titleSmall: GoogleFonts.inter(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: darkGlass,
-      ),
-      
-      // Texto del cuerpo
-      bodyLarge: GoogleFonts.inter(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: charcoal,
-        height: 1.5,
-      ),
-      bodyMedium: GoogleFonts.inter(
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        color: darkGlass,
-        height: 1.4,
-      ),
-      bodySmall: GoogleFonts.inter(
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-        color: darkGlass,
-        height: 1.3,
-      ),
-      
-      // Labels para botones y elementos pequeños
-      labelLarge: GoogleFonts.inter(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Colors.white,
-      ),
-      labelMedium: GoogleFonts.inter(
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-        color: darkGlass,
-      ),
-      labelSmall: GoogleFonts.inter(
-        fontSize: 10,
-        fontWeight: FontWeight.w500,
-        color: darkGlass,
-      ),
-    );
-  }
+  // ===== TEMA PRINCIPAL =====
+  
+  /// Tema dark completo con Shadcn + Glassmorphism
+  static ThemeData get darkTheme => ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    
+    // Core theming
+    colorScheme: _colorScheme,
+    textTheme: _textTheme,
+    
+    // Background
+    scaffoldBackgroundColor: AppColors.background,
+    canvasColor: AppColors.card,
+    
+    // Component themes
+    appBarTheme: _appBarTheme,
+    cardTheme: _cardTheme,
+    elevatedButtonTheme: _elevatedButtonTheme,
+    outlinedButtonTheme: _outlinedButtonTheme,
+    textButtonTheme: _textButtonTheme,
+    inputDecorationTheme: _inputDecorationTheme,
+    floatingActionButtonTheme: _fabTheme,
+    bottomNavigationBarTheme: _bottomNavTheme,
+    dividerTheme: _dividerTheme,
+    
+    // Visual density
+    visualDensity: VisualDensity.adaptivePlatformDensity,
+    
+    // Platform adaptations
+    platform: TargetPlatform.iOS,
+  );
 
-  // TEMA PRINCIPAL
-  static ThemeData get lightTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      
-      // Esquema de colores refinado
-      colorScheme: const ColorScheme.light(
-        // Colores primarios
-        primary: primaryBlue,
-        onPrimary: Colors.white,
-        primaryContainer: lightBlue,
-        onPrimaryContainer: charcoal,
-        
-        // Colores secundarios
-        secondary: mintGreen,
-        onSecondary: Colors.white,
-        secondaryContainer: softGreen,
-        onSecondaryContainer: charcoal,
-        
-        // Colores terciarios
-        tertiary: warmPeach,
-        onTertiary: charcoal,
-        tertiaryContainer: softPink,
-        onTertiaryContainer: charcoal,
-        
-        // Superficies
-        surface: glassWhite,
-        onSurface: charcoal,
-        surfaceVariant: lightGlass,
-        onSurfaceVariant: darkGlass,
-        
-        // Fondo
-        background: glassWhite,
-        onBackground: charcoal,
-        
-        // Errores
-        error: Color(0xFFEF4444),
-        onError: Colors.white,
-        errorContainer: Color(0xFFFEF2F2),
-        onErrorContainer: Color(0xFFDC2626),
-        
-        // Contornos
-        outline: mediumGlass,
-        outlineVariant: Color(0xFFE5E7EB),
-        
-        // Superficie inversa
-        inverseSurface: charcoal,
-        onInverseSurface: glassWhite,
-        inversePrimary: lightBlue,
-        
-        // Sombra y scrim
-        shadow: Color(0x1A000000),
-        scrim: Color(0x80000000),
-      ),
-      
-      // Tipografía
-      textTheme: textTheme,
-      
-      // AppBar con glassmorphism
-      appBarTheme: AppBarTheme(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: charcoal,
-        titleTextStyle: GoogleFonts.inter(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: charcoal,
-        ),
-        centerTitle: true,
-      ),
-      
-      // Cards con glassmorphism
-      cardTheme: CardThemeData(
-        elevation: 0,
-        color: Colors.white.withOpacity(0.7),
-        shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
-      
-      // Botones elegantes
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          backgroundColor: primaryBlue,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          textStyle: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      
-      // Input fields minimalistas
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: lightGlass,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: primaryBlue, width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      
-      // Dividers sutiles
-      dividerTheme: const DividerThemeData(
-        color: mediumGlass,
-        thickness: 0.5,
-        space: 1,
-      ),
-    );
-  }
+  // ===== TEMA LEGACY (PARA MANTENER COMPATIBILIDAD) =====
+  
+  /// Getter para mantener compatibilidad con código existente
+  static ThemeData get lightTheme => darkTheme;
 
-  // TEMA OSCURO
-  static ThemeData get darkTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      
-      colorScheme: const ColorScheme.dark(
-        primary: lightBlue,
-        onPrimary: charcoal,
-        primaryContainer: darkBlue,
-        onPrimaryContainer: Colors.white,
-        
-        secondary: softGreen,
-        onSecondary: charcoal,
-        secondaryContainer: deepGreen,
-        onSecondaryContainer: Colors.white,
-        
-        tertiary: warmPeach,
-        onTertiary: charcoal,
-        tertiaryContainer: softPink,
-        onTertiaryContainer: charcoal,
-        
-        surface: Color(0xFF0F172A),
-        onSurface: glassWhite,
-        surfaceVariant: Color(0xFF1E293B),
-        onSurfaceVariant: lightGlass,
-        
-        background: Color(0xFF020617),
-        onBackground: glassWhite,
-        
-        error: Color(0xFFEF4444),
-        onError: Colors.white,
-        
-        outline: Color(0xFF334155),
-        outlineVariant: Color(0xFF475569),
-        
-        inverseSurface: glassWhite,
-        onInverseSurface: charcoal,
-        inversePrimary: primaryBlue,
-        
-        shadow: Color(0x40000000),
-        scrim: Color(0x80000000),
-      ),
-      
-      textTheme: textTheme.apply(
-        bodyColor: glassWhite,
-        displayColor: glassWhite,
-      ),
-    );
-  }
-
-  // ESPACIADO CONSISTENTE
-  static const double spacingXS = 4.0;
-  static const double spacingS = 8.0;
-  static const double spacingM = 16.0;
-  static const double spacingL = 24.0;
-  static const double spacingXL = 32.0;
-  static const double spacingXXL = 48.0;
-
-  // BORDER RADIUS CONSISTENTE
-  static const double radiusS = 8.0;
-  static const double radiusM = 12.0;
-  static const double radiusL = 16.0;
-  static const double radiusXL = 24.0;
-
-  // ELEVACIONES
-  static const double elevationLow = 2.0;
-  static const double elevationMedium = 4.0;
-  static const double elevationHigh = 8.0;
+  /// Getters de compatibilidad para colores legacy
+  static Color get primaryBlue => AppColors.primary;
+  static Color get mintGreen => AppColors.secondary;
+  static Color get lightGlass => AppColors.muted;
+  static Color get charcoal => AppColors.foreground;
+  static Color get darkGlass => AppColors.mutedForeground;
+  
+  /// Getter de compatibilidad para textTheme
+  static TextTheme get textTheme => _textTheme;
 }
