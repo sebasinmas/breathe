@@ -197,11 +197,19 @@ class SecondaryButton extends StatelessWidget {
       width: width,
       height: height ?? 56,
       decoration: BoxDecoration(
+        color: Colors.white,
         border: Border.all(
-          color: colorScheme.outline,
-          width: 1.5,
+          color: const Color(0xFFE2E8F0), // Slate 200
+          width: 1,
         ),
         borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -235,7 +243,7 @@ class SecondaryButton extends StatelessWidget {
                   child: Text(
                     text,
                     style: theme.textTheme.titleMedium?.copyWith(
-                      color: colorScheme.primary,
+                      color: const Color(0xFF1E293B), // Slate 800
                       fontWeight: FontWeight.w600,
                     ),
                     textAlign: TextAlign.center,

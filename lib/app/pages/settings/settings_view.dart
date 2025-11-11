@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_clean_architecture/flutter_clean_architecture.dart';
 import 'package:go_router/go_router.dart';
+import '../../styles/app_colors.dart';
 import 'settings_controller.dart';
 
 /// Vista de configuración siguiendo Clean Architecture
@@ -19,7 +20,9 @@ class _SettingsPageState extends CleanViewState<SettingsPage, SettingsController
   Widget get view {
     return Scaffold(
       key: globalKey,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: AppColors.background,
         title: const Text('Configuración'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -215,7 +218,12 @@ class _SettingsPageState extends CleanViewState<SettingsPage, SettingsController
     required Widget child,
   }) {
     return Card(
-      elevation: 2,
+      elevation: 0,
+      color: AppColors.card,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: AppColors.border, width: 1),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -225,13 +233,15 @@ class _SettingsPageState extends CleanViewState<SettingsPage, SettingsController
               children: [
                 Icon(
                   icon,
-                  color: Theme.of(context).primaryColor,
+                  color: AppColors.primary,
+                  size: 24,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: AppColors.foreground,
                   ),
                 ),
               ],

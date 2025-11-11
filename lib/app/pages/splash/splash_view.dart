@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../styles/app_colors.dart';
 
 /// Vista de splash screen
 /// Muestra el logo de la app y verifica el estado de autenticación
@@ -31,42 +33,44 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: AppColors.background,
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.primaryContainer,
+              AppColors.background,
+              const Color(0xFF0A0A0B), // Más oscuro
             ],
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo de la aplicación
+            // Logo de la aplicación con glassmorphism
             Container(
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.card,
                 borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: AppColors.border, width: 1),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
+                    color: AppColors.primary.withOpacity(0.2),
+                    blurRadius: 30,
+                    spreadRadius: 5,
                     offset: const Offset(0, 10),
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.air, // Icono temporal para respiración
+              child: Icon(
+                Icons.air,
                 size: 60,
-                color: Colors.blue,
+                color: AppColors.primary,
               ),
             ),
             
@@ -75,9 +79,10 @@ class _SplashPageState extends State<SplashPage> {
             // Nombre de la aplicación
             Text(
               'Breathe',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+              style: GoogleFonts.lato(
+                fontSize: 48,
+                color: AppColors.foreground,
+                fontWeight: FontWeight.w700,
                 letterSpacing: 2,
               ),
             ),
@@ -87,8 +92,9 @@ class _SplashPageState extends State<SplashPage> {
             // Subtítulo
             Text(
               'Respiración • Mindfulness • Bienestar',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.white.withOpacity(0.8),
+              style: GoogleFonts.lato(
+                fontSize: 16,
+                color: AppColors.mutedForeground,
                 letterSpacing: 1,
               ),
               textAlign: TextAlign.center,
@@ -97,8 +103,8 @@ class _SplashPageState extends State<SplashPage> {
             const SizedBox(height: 50),
             
             // Indicador de carga
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
               strokeWidth: 2,
             ),
             
@@ -106,8 +112,9 @@ class _SplashPageState extends State<SplashPage> {
             
             Text(
               'Iniciando...',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.white.withOpacity(0.7),
+              style: GoogleFonts.lato(
+                fontSize: 14,
+                color: AppColors.mutedForeground,
               ),
             ),
           ],

@@ -54,10 +54,17 @@ dependencies:
   
   # Audio para feedback
   audioplayers: ^6.1.0              # Reproducción de sonidos suaves
+  
+  # State management
+  flutter_bloc: ^8.1.6              # Gestión de estado con BLoC/Cubit
+  equatable: ^2.0.5                 # Comparación de objetos para states
+  freezed_annotation: ^2.4.4        # Anotaciones para freezed
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.4.13             # Generador de código
+  freezed: ^2.5.7                   # Generación de código inmutable
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -78,9 +85,10 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/animations/
+    - assets/sounds/
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

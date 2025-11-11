@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../pages/splash/splash_view.dart';
 import '../pages/home/home_view.dart';
 import '../pages/breathing_exercise/breathing_exercise_view.dart';
+import '../pages/breathing/breathing_page.dart';
 import '../pages/settings/settings_view.dart';
 import '../pages/login/login_view.dart';
 
@@ -13,6 +14,7 @@ class AppRouter {
   static const String login = '/login';
   static const String home = '/home';
   static const String breathingExercise = '/breathing-exercise';
+  static const String breathing = '/breathing';
   static const String settings = '/settings';
 
   /// Configuración del router principal
@@ -50,12 +52,22 @@ class AppRouter {
         ),
       ),
 
-      // Ruta de ejercicio de respiración
+      // Ruta de ejercicio de respiración (vieja - mantener por compatibilidad)
       GoRoute(
         path: breathingExercise,
         name: 'breathing-exercise',
         pageBuilder: (context, state) => _buildPageWithTransition(
           child: const BreathingExercisePage(),
+          transitionType: _TransitionType.slideLeft,
+        ),
+      ),
+
+      // Ruta del módulo de breathing (nuevo con Clean Architecture)
+      GoRoute(
+        path: breathing,
+        name: 'breathing',
+        pageBuilder: (context, state) => _buildPageWithTransition(
+          child: const BreathingPage(),
           transitionType: _TransitionType.slideLeft,
         ),
       ),

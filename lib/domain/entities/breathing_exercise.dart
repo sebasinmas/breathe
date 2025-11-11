@@ -1,77 +1,77 @@
-/// Entidad que representa un ejercicio de respiración
-/// Esta entidad define la estructura base de un ejercicio con sus patrones y configuraciones
+import 'breathing_step.dart';
+
+/// Entidad que representa un ejercicio de respiración completo
+/// 
+/// Un ejercicio consiste en:
+/// - Identificador único ([id])
+/// - Nombre del ejercicio ([name])
+/// - Descripción detallada ([description])
+/// - Secuencia de pasos respiratorios ([steps])
 class BreathingExercise {
+  /// Identificador único del ejercicio
   final String id;
+  
+  /// Nombre del ejercicio (ej: "Respiración Cuadrada", "Técnica 4-7-8")
   final String name;
+  
+  /// Descripción del ejercicio y sus beneficios
   final String description;
-  final int inhaleTime; // Tiempo de inhalación en segundos
-  final int holdTime; // Tiempo de retención en segundos
-  final int exhaleTime; // Tiempo de exhalación en segundos
-  final int cycles; // Número de ciclos del ejercicio
-  final String category; // Categoría: básico, avanzado, personalizado
-  final bool isPremium; // Si requiere suscripción premium
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  
+  /// Lista ordenada de pasos que componen el ejercicio
+  final List<BreathingStep> steps;
 
   const BreathingExercise({
     required this.id,
     required this.name,
     required this.description,
-    required this.inhaleTime,
-    required this.holdTime,
-    required this.exhaleTime,
-    required this.cycles,
-    required this.category,
-    required this.isPremium,
-    required this.createdAt,
-    required this.updatedAt,
+    required this.steps,
   });
 
-  /// Crea una copia del ejercicio con valores modificados
+  /// Duración total del ejercicio (suma de todos los pasos)
+  Duration get totalDuration => steps.fold(
+        Duration.zero,
+        (total, step) => total + step.duration,
+      );
+
+  /// Duración total en segundos (útil para mostrar al usuario)
+  int get totalDurationInSeconds => totalDuration.inSeconds;
+
+  /// Número de pasos en el ejercicio
+  int get stepCount => steps.length;
+
+  /// Verifica si el ejercicio tiene pasos válidos
+  bool get isValid => steps.isNotEmpty;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BreathingExercise &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name &&
+          description == other.description &&
+          steps == other.steps;
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode ^ description.hashCode ^ steps.hashCode;
+
+  @override
+  String toString() {
+    return 'BreathingExercise{id: $id, name: $name, stepCount: $stepCount, totalDuration: $totalDuration}';
+  }
+
+  /// Crea una copia de este ejercicio con los valores opcionales modificados
   BreathingExercise copyWith({
     String? id,
     String? name,
     String? description,
-    int? inhaleTime,
-    int? holdTime,
-    int? exhaleTime,
-    int? cycles,
-    String? category,
-    bool? isPremium,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    List<BreathingStep>? steps,
   }) {
     return BreathingExercise(
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
-      inhaleTime: inhaleTime ?? this.inhaleTime,
-      holdTime: holdTime ?? this.holdTime,
-      exhaleTime: exhaleTime ?? this.exhaleTime,
-      cycles: cycles ?? this.cycles,
-      category: category ?? this.category,
-      isPremium: isPremium ?? this.isPremium,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
+      steps: steps ?? this.steps,
     );
-  }
-
-  /// Duración total del ejercicio en segundos
-  int get totalDuration {
-    return (inhaleTime + holdTime + exhaleTime) * cycles;
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is BreathingExercise && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
-
-  @override
-  String toString() {
-    return 'BreathingExercise(id: $id, name: $name, cycles: $cycles)';
   }
 }

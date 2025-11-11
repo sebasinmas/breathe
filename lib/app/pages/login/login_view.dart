@@ -131,9 +131,6 @@ class _LoginViewState extends CleanViewState<LoginPage, LoginController>
 
   @override
   Widget get view {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    
     return Scaffold(
       key: globalKey,
       resizeToAvoidBottomInset: true,
@@ -149,11 +146,11 @@ class _LoginViewState extends CleanViewState<LoginPage, LoginController>
             height: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [
-                  colorScheme.primaryContainer,
-                  colorScheme.secondaryContainer,
+                  const Color(0xFF0F172A), // Slate 900
+                  const Color(0xFF1E293B), // Slate 800
                 ],
               ),
             ),
