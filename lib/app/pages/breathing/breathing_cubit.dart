@@ -34,7 +34,8 @@ class BreathingCubit extends Cubit<BreathingState> {
     }
   }
 
-  /// Selecciona un ejercicio para ejecutar
+  /// Selecciona un ejercicio e inicia automáticamente
+  /// Nielsen: Eficiencia de uso - Inicia el ejercicio directamente sin pasos adicionales
   void selectExercise(int exerciseIndex) {
     if (exerciseIndex < 0 || exerciseIndex >= state.exercises.length) {
       return;
@@ -48,6 +49,14 @@ class BreathingCubit extends Cubit<BreathingState> {
       stepProgress: 0.0,
       status: BreathingStatus.loaded,
     ));
+    
+    // Nielsen: Eficiencia de uso - Iniciar automáticamente después de un pequeño delay
+    // Esto da tiempo al usuario para ver la transición de pantalla
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (state.selectedExercise == exercise) {
+        startTimer();
+      }
+    });
   }
 
   /// Inicia el temporizador del ejercicio

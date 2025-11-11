@@ -141,10 +141,10 @@ class _BreathingAnimationViewState extends State<BreathingAnimationView>
       body: Stack(
         children: [
           // Botón de cerrar en la esquina superior izquierda
-          SafeArea(
-            child: Positioned(
-              top: 16,
-              left: 16,
+          Positioned(
+            top: 16,
+            left: 16,
+            child: SafeArea(
               child: IconButton(
                 icon: Icon(
                   Icons.close,

@@ -112,7 +112,7 @@ class _BreathingPageContent extends StatelessWidget {
             // Mostrar lista de ejercicios
             return Column(
               children: [
-                // Header
+                // Header con botón de volver (Nielsen: Control del usuario y libertad)
                 _buildHeader(context),
                 
                 // Lista de ejercicios
@@ -134,24 +134,43 @@ class _BreathingPageContent extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20.w),
+      padding: EdgeInsets.fromLTRB(12.w, 12.h, 20.w, 20.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Ejercicios de Respiración',
-            style: GoogleFonts.lato(
-              fontSize: 32.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColors.foreground,
-            ),
+          // Botón de volver (Nielsen: Control del usuario y libertad)
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  size: 24.sp,
+                  color: AppColors.foreground,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                tooltip: 'Volver', // Nielsen: Ayuda y documentación
+              ),
+              SizedBox(width: 8.w),
+              // Título (Nielsen: Visibilidad del estado del sistema)
+              Text(
+                'Ejercicios de Respiración',
+                style: GoogleFonts.lato(
+                  fontSize: 28.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.foreground,
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 8.h),
-          Text(
-            'Selecciona un ejercicio para comenzar tu práctica',
-            style: GoogleFonts.lato(
-              fontSize: 16.sp,
-              color: AppColors.mutedForeground,
+          Padding(
+            padding: EdgeInsets.only(left: 56.w), // Alinear con el título
+            child: Text(
+              'Elige un ejercicio y comienza a respirar', // Nielsen: Correspondencia con el mundo real
+              style: GoogleFonts.lato(
+                fontSize: 15.sp,
+                color: AppColors.mutedForeground,
+              ),
             ),
           ),
         ],
